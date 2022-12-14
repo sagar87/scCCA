@@ -9,7 +9,7 @@ from torch.types import Device
 
 from .model import guide, model
 from .train import SUBSAMPLE, SVILocalHandler
-from .utils import get_rna_counts, get_state_loadings, get_states
+from .utils import get_formula, get_rna_counts, get_state_loadings, get_states
 
 
 class scPCA(object):
@@ -31,7 +31,7 @@ class scPCA(object):
     design_formula: str or None (default: None)
         R style formula to construct the design matrix from adata.obs. If design_formula is None,
         scPCA fits a normal PCA.
-    subsampling: int (default: 2**12)
+    subsampling: int (default: 4096)
         Number of cells to subsample for training. A larger number will result in a more accurate
         computation of the gradients, but will also increase the training time and memory usage.
     device: torch.device (default: torch.device("cuda" if torch.cuda.is_available() else "cpu"))
@@ -74,8 +74,8 @@ class scPCA(object):
         self.device = device
 
         # prepare design and batch matrix
-        self.batch_matrix = self._get_formula(self.batch_formula)
-        self.design_matrix = self._get_formula(self.design_formula)
+        self.batch_matrix = get_formula(self.adata, self.batch_formula)
+        self.design_matrix = get_formula(self.adata, self.design_formula)
 
         #
         self.model_kwargs = model_kwargs

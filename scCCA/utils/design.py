@@ -1,4 +1,5 @@
 import numpy as np
+from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
 
@@ -106,3 +107,12 @@ def get_state_loadings(adata, model_key: str) -> dict:
         states[k] = adata.varm[model_key][..., v].sum(-1)
 
     return states
+
+
+def get_formula(adata, formula):
+    if formula is None:
+        batch = dmatrix("1", adata.obs)
+    else:
+        batch = dmatrix(formula, adata.obs)
+
+    return batch
