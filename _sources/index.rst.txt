@@ -10,6 +10,7 @@ Welcome to scCCA's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   api
 
 .. toctree::
    :maxdepth: 2

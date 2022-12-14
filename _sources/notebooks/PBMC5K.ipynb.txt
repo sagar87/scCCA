@@ -1,9 +1,17 @@
 {
  "cells": [
   {
+   "cell_type": "markdown",
+   "id": "76c6de33-b268-4142-89dc-c16f536d9822",
+   "metadata": {},
+   "source": [
+    "# Analysing PBMC5K using scCCA"
+   ]
+  },
+  {
    "cell_type": "code",
    "execution_count": null,
-   "id": "36b8fdd8-23d8-441e-9d6e-ca208781fed3",
+   "id": "ed216144-4d9e-4222-8f78-dfe497f43e3c",
    "metadata": {},
    "outputs": [],
    "source": []
