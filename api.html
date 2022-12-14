@@ -41,6 +41,9 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.pca">scPCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.cca">scCCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.pl">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-functions">Data functions</a></li>
 </ul>
 </li>
@@ -100,6 +103,121 @@
 </style>
 <section id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline"></a></h1>
+<section id="module-scCCA.pca">
+<span id="scpca"></span><h2>scPCA<a class="headerlink" href="#module-scCCA.pca" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="scCCA.pca.scPCA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.pca.</span></span><span class="sig-name descname"><span class="pre">scPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'scpca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.pca.scPCA" title="Permalink to this definition"></a></dt>
+<dd><p>scPCA model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
+<li><p><strong>num_factors</strong> (<em>int</em><em> (</em><em>default: 15</em><em>)</em>) – Number of factors to fit.</p></li>
+<li><p><strong>layers_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell count matrix from adata.layers. If layers_key is None,
+scPCA will try to extract the count matrix from the adata.X.</p></li>
+<li><p><strong>batch_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to extract batch information from adata.obs. If batch_formula is None,
+scPCA assumes a single batch. Usually <cite>batch_column - 1</cite>.</p></li>
+<li><p><strong>design_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to construct the design matrix from adata.obs. If design_formula is None,
+scPCA fits a normal PCA.</p></li>
+<li><p><strong>subsampling</strong> (<em>int</em><em> (</em><em>default: 2**12</em><em>)</em>) – Number of cells to subsample for training. A larger number will result in a more accurate
+computation of the gradients, but will also increase the training time and memory usage.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> (</em><em>default: torch.device</em><em>(</em><em>&quot;cuda&quot; if torch.cuda.is_available</em><em>(</em><em>) </em><em>else &quot;cpu&quot;</em><em>)</em><em>)</em>) – Device to run the model on. A GPU is highly recommended.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key to store the model in the AnnData object.</p></li>
+<li><p><strong>model_kwargs</strong> (<em>dict</em>) – Model parameters. See sccca.model.model for more details.</p></li>
+<li><p><strong>training_kwargs</strong> (<em>dict</em>) – Training parameters. See sccca.handler for more details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-scCCA.cca">
+<span id="sccca"></span><h2>scCCA<a class="headerlink" href="#module-scCCA.cca" title="Permalink to this headline"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="scCCA.cca.scCCA">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.cca.</span></span><span class="sig-name descname"><span class="pre">scCCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">protein_obsm_key:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'sccca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.cca.scCCA" title="Permalink to this definition"></a></dt>
+<dd><p>scCCA model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
+<li><p><strong>num_factors</strong> (<em>int</em>) – Number of factors to fit.</p></li>
+<li><p><strong>protein_obsm_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell protein matrix from <cite>adata.obsm</cite>.</p></li>
+<li><p><strong>layers_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell count matrix from adata.layers. If layers_key is None,
+scPCA will try to extract the count matrix from the adata.X.</p></li>
+<li><p><strong>batch_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to extract batch information from adata.obs. If batch_formula is None,
+scPCA assumes a single batch. Usually <cite>batch_column - 1</cite>.</p></li>
+<li><p><strong>design_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to construct the design matrix from adata.obs. If design_formula is None,
+scPCA fits a normal PCA.</p></li>
+<li><p><strong>subsampling</strong> (<em>int</em><em> (</em><em>default: 4096</em><em>)</em>) – Number of cells to subsample for training. A larger number will result in a more accurate
+computation of the gradients, but will also increase the training time and memory usage.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em><em> (</em><em>default: torch.device</em><em>(</em><em>&quot;cuda&quot;</em><em>) </em><em>if a GPU is available</em><em>)</em>) – Device to run the model on. A GPU is highly recommended.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key to store the model in the AnnData object.</p></li>
+<li><p><strong>model_kwargs</strong> (<em>dict</em>) – Model parameters. See sccca.model.model for more details.</p></li>
+<li><p><strong>training_kwargs</strong> (<em>dict</em>) – Training parameters. See sccca.handler for more details.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-scCCA.pl">
+<span id="plotting"></span><h2>Plotting<a class="headerlink" href="#module-scCCA.pl" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="scCCA.pl.disp">
+<span class="sig-prename descclassname"><span class="pre">scCCA.pl.</span></span><span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">matplotlib.axes._axes.Axes</span></span></span><a class="headerlink" href="#scCCA.pl.disp" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the fitted dispersion against the coefficient of variation RNA or
+protein counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
+<li><p><strong>layers_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – If <cite>layers_key</cite> is None, then the raw counts are extracted from <cite>adata.X</cite>.
+Otherwise, the counts are extracted from <cite>adata.layers[layers_key]</cite>.</p></li>
+<li><p><strong>protein_obsm_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Key for protein counts in <cite>adata.obsm</cite>. Providing <cite>protein_obsm_key</cite>
+overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;viridis&quot;</em><em>)</em>) – Colormap for the scatterplot. Color represents the mean of the counts.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes to plot on. If None, then a new figure is created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ax</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.axes.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scCCA.pl.qc_hist">
+<span class="sig-prename descclassname"><span class="pre">scCCA.pl.</span></span><span class="sig-name descname"><span class="pre">qc_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">matplotlib.axes._axes.Axes</span></span></span><a class="headerlink" href="#scCCA.pl.qc_hist" title="Permalink to this definition"></a></dt>
+<dd><p>Plots a 2D histogram of the predicted counts against the true counts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
+<li><p><strong>layers_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – If <cite>layers_key</cite> is None, then the raw counts are extracted from <cite>adata.X</cite>.
+Otherwise, the counts are extracted from <cite>adata.layers[layers_key]</cite>.</p></li>
+<li><p><strong>protein_obsm_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Key for protein counts in <cite>adata.obsm</cite>. Providing <cite>protein_obsm_key</cite>
+overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;viridis&quot;</em><em>)</em>) – Colormap for the scatterplot. Color represents the mean of the counts.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes to plot on. If None, then a new figure is created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>ax</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.axes.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="data-functions">
 <h2>Data functions<a class="headerlink" href="#data-functions" title="Permalink to this headline"></a></h2>
 <p>The image accessor enables to easily subset the image container.</p>
@@ -182,59 +300,6 @@ design matrix of the model.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-scCCA.pca"></span><dl class="py class">
-<dt class="sig sig-object py" id="scCCA.pca.scPCA">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.pca.</span></span><span class="sig-name descname"><span class="pre">scPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'scpca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.pca.scPCA" title="Permalink to this definition"></a></dt>
-<dd><p>scPCA model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
-<li><p><strong>num_factors</strong> (<em>int</em><em> (</em><em>default: 15</em><em>)</em>) – Number of factors to fit.</p></li>
-<li><p><strong>layers_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell count matrix from adata.layers. If layers_key is None,
-scPCA will try to extract the count matrix from the adata.X.</p></li>
-<li><p><strong>batch_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to extract batch information from adata.obs. If batch_formula is None,
-scPCA assumes a single batch. Usually <cite>batch_column - 1</cite>.</p></li>
-<li><p><strong>design_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to construct the design matrix from adata.obs. If design_formula is None,
-scPCA fits a normal PCA.</p></li>
-<li><p><strong>subsampling</strong> (<em>int</em><em> (</em><em>default: 2**12</em><em>)</em>) – Number of cells to subsample for training. A larger number will result in a more accurate
-computation of the gradients, but will also increase the training time and memory usage.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em> (</em><em>default: torch.device</em><em>(</em><em>&quot;cuda&quot; if torch.cuda.is_available</em><em>(</em><em>) </em><em>else &quot;cpu&quot;</em><em>)</em><em>)</em>) – Device to run the model on. A GPU is highly recommended.</p></li>
-<li><p><strong>model_key</strong> (<em>str</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key to store the model in the AnnData object.</p></li>
-<li><p><strong>model_kwargs</strong> (<em>dict</em>) – Model parameters. See sccca.model.model for more details.</p></li>
-<li><p><strong>training_kwargs</strong> (<em>dict</em>) – Training parameters. See sccca.handler for more details.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<span class="target" id="module-scCCA.cca"></span><dl class="py class">
-<dt class="sig sig-object py" id="scCCA.cca.scCCA">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.cca.</span></span><span class="sig-name descname"><span class="pre">scCCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">protein_obsm_key:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'sccca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.cca.scCCA" title="Permalink to this definition"></a></dt>
-<dd><p>scCCA model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
-<li><p><strong>num_factors</strong> (<em>int</em><em> (</em><em>default: 15</em><em>)</em>) – Number of factors to fit.</p></li>
-<li><p><strong>protein_obsm_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell protein matrix from adata.obsm.</p></li>
-<li><p><strong>layers_key</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – Key to extract single-cell count matrix from adata.layers. If layers_key is None,
-scPCA will try to extract the count matrix from the adata.X.</p></li>
-<li><p><strong>batch_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to extract batch information from adata.obs. If batch_formula is None,
-scPCA assumes a single batch. Usually <cite>batch_column - 1</cite>.</p></li>
-<li><p><strong>design_formula</strong> (<em>str</em><em> or </em><em>None</em><em> (</em><em>default: None</em><em>)</em>) – R style formula to construct the design matrix from adata.obs. If design_formula is None,
-scPCA fits a normal PCA.</p></li>
-<li><p><strong>subsampling</strong> (<em>int</em><em> (</em><em>default: 2**12</em><em>)</em>) – Number of cells to subsample for training. A larger number will result in a more accurate
-computation of the gradients, but will also increase the training time and memory usage.</p></li>
-<li><p><strong>device</strong> (<em>torch.device</em><em> (</em><em>default: torch.device</em><em>(</em><em>&quot;cuda&quot; if torch.cuda.is_available</em><em>(</em><em>) </em><em>else &quot;cpu&quot;</em><em>)</em><em>)</em>) – Device to run the model on. A GPU is highly recommended.</p></li>
-<li><p><strong>model_key</strong> (<em>str</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key to store the model in the AnnData object.</p></li>
-<li><p><strong>model_kwargs</strong> (<em>dict</em>) – Model parameters. See sccca.model.model for more details.</p></li>
-<li><p><strong>training_kwargs</strong> (<em>dict</em>) – Training parameters. See sccca.handler for more details.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
