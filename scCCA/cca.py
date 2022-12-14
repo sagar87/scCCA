@@ -18,10 +18,10 @@ class scCCA(scPCA):
     ----------
     adata: anndata.AnnData
         Anndata object with the single-cell data.
-    num_factors: int (default: 15)
+    num_factors: int
         Number of factors to fit.
     protein_obsm_key: str or None (default: None)
-        Key to extract single-cell protein matrix from adata.obsm.
+        Key to extract single-cell protein matrix from `adata.obsm`.
     layers_key: str or None (default: None)
         Key to extract single-cell count matrix from adata.layers. If layers_key is None,
         scPCA will try to extract the count matrix from the adata.X.
@@ -31,10 +31,10 @@ class scCCA(scPCA):
     design_formula: str or None (default: None)
         R style formula to construct the design matrix from adata.obs. If design_formula is None,
         scPCA fits a normal PCA.
-    subsampling: int (default: 2**12)
+    subsampling: int (default: 4096)
         Number of cells to subsample for training. A larger number will result in a more accurate
         computation of the gradients, but will also increase the training time and memory usage.
-    device: torch.device (default: torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    device: torch.device (default: torch.device("cuda") if a GPU is available)
         Device to run the model on. A GPU is highly recommended.
     model_key: str (default: "scpca")
         Key to store the model in the AnnData object.
