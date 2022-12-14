@@ -4,4 +4,4 @@ max-line-length = 120
 exclude =
     docs/conf.py,
     sccca/legacy.py,
-    sccca/model.py
+    scCCA/model.py
