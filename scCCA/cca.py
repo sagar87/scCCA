@@ -1,20 +1,18 @@
-from functools import partial
 from typing import Union
 
 import numpy as np
 import torch
 from anndata import AnnData
-from patsy.design_info import DesignMatrix
 from torch.types import Device
 
-from .model import guide, model
-from .train import SUBSAMPLE, SVILocalHandler
-from .utils import get_rna_counts, get_state_loadings, get_states
+from .pca import scPCA
+from .train import SUBSAMPLE
+from .utils import get_protein_counts, get_rna_counts, get_states
 
 
-class scPCA(object):
+class scCCA(scPCA):
     """
-    scPCA model.
+    scCCA model.
 
     Parameters
     ----------
@@ -22,6 +20,8 @@ class scPCA(object):
         Anndata object with the single-cell data.
     num_factors: int (default: 15)
         Number of factors to fit.
+    protein_obsm_key: str or None (default: None)
+        Key to extract single-cell protein matrix from adata.obsm.
     layers_key: str or None (default: None)
         Key to extract single-cell count matrix from adata.layers. If layers_key is None,
         scPCA will try to extract the count matrix from the adata.X.
@@ -48,12 +48,13 @@ class scPCA(object):
         self,
         adata: AnnData,
         num_factors: int,
+        protein_obsm_key: str,
         layers_key: Union[str, None] = None,
         batch_formula: Union[str, None] = None,
         design_formula: Union[str, None] = None,
         subsampling: int = 4096,
         device: Device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
-        model_key: str = "scpca",
+        model_key: str = "sccca",
         model_kwargs: dict = {
             "β_rna_sd": 0.01,
             "β_rna_mean": 3,
@@ -63,123 +64,52 @@ class scPCA(object):
         },
         training_kwargs: dict = SUBSAMPLE,
     ):
-        self.adata = adata
-        self.num_factors = num_factors
-        self.layers_key = layers_key
-        self.batch_formula = batch_formula
-        self.design_formula = design_formula
-        self.model_key = model_key
+        self.protein_obsm_key = protein_obsm_key
 
-        self.subsampling = min([subsampling, adata.shape[0]])
-        self.device = device
-
-        # prepare design and batch matrix
-        self.batch_matrix = self._get_formula(self.batch_formula)
-        self.design_matrix = self._get_formula(self.design_formula)
-
-        #
-        self.model_kwargs = model_kwargs
-        self.training_kwargs = training_kwargs
-
-        # setup data
-        self.data = self._setup_data()
-        self.handler = self._setup_handler()
-
-    def _to_torch(self, data):
-        """
-        Helper method to convert numpy arrays of a dict to torch tensors.
-        """
-        return {
-            k: torch.tensor(v, device=self.device) if isinstance(v, np.ndarray) else v
-            for k, v in data.items()
-        }
+        super().__init__(
+            adata=adata,
+            num_factors=num_factors,
+            layers_key=layers_key,
+            batch_formula=batch_formula,
+            design_formula=design_formula,
+            subsampling=subsampling,
+            device=device,
+            model_key=model_key,
+            model_kwargs=model_kwargs,
+            training_kwargs=training_kwargs,
+        )
 
     def _setup_data(self):
         """
         Sets up the data.
         """
         X = get_rna_counts(self.adata, self.layers_key)
+        Y = get_protein_counts(self.adata, self.protein_obsm_key)
         X_size = np.log(X.sum(axis=1, keepdims=True))
+        Y_size = np.log(Y.sum(axis=1, keepdims=True))
         batch = np.asarray(self.batch_matrix).astype(np.float32)
         design = np.asarray(self.design_matrix).astype(np.float32)
 
         num_genes = X.shape[1]
         num_cells = X.shape[0]
         num_batches = batch.shape[1]
+        num_proteins = Y.shape[1]
         idx = np.arange(num_cells)
 
         data = dict(
             X=X,
             X_size=X_size,
-            Y=None,
-            Y_size=None,
+            Y=Y,
+            Y_size=Y_size,
             batch=batch,
             idx=idx,
             num_genes=num_genes,
-            num_proteins=None,
+            num_proteins=num_proteins,
             num_batches=num_batches,
             num_cells=num_cells,
             design=design,
         )
         return self._to_torch(data)
-
-    def _setup_handler(self):
-        """
-        Sets up the handler for training the model.
-        """
-        train_model = partial(
-            model,
-            num_factors=self.num_factors,
-            subsampling=self.subsampling,
-            minibatches=False,
-            device=self.device,
-            **self.data,
-            **self.model_kwargs,
-        )
-
-        train_guide = partial(
-            guide,
-            num_factors=self.num_factors,
-            subsampling=self.subsampling,
-            minibatches=False,
-            device=self.device,
-            **self.data,
-            **self.model_kwargs,
-        )
-
-        idx = self.data.pop("idx")
-
-        predict_model = partial(
-            model,
-            num_factors=self.num_factors,
-            subsampling=0,
-            minibatches=True,
-            device=self.device,
-            **self.data,
-            **self.model_kwargs,
-        )
-
-        predict_guide = partial(
-            guide,
-            num_factors=self.num_factors,
-            subsampling=0,
-            minibatches=True,
-            device=self.device,
-            **self.data,
-            **self.model_kwargs,
-        )
-
-        return SVILocalHandler(
-            model=train_model,
-            guide=train_guide,
-            predict_model=predict_model,
-            predict_guide=predict_guide,
-            idx=idx,
-            **self.training_kwargs,
-        )
-
-    def fit(self, *args, **kwargs):
-        self.handler.fit(*args, **kwargs)
 
     def to_anndata(self, adata=None, model_key=None, num_samples=25):
         if model_key is None:
@@ -188,11 +118,34 @@ class scPCA(object):
         if adata is None:
             adata = self.adata
 
+        # set up unstructured metadata
+        adata.uns[f"{model_key}"] = {}
+        adata.uns[f"{model_key}"]["posterior"] = {
+            "μ_rna": self.handler.predict_local_variable(
+                "μ_rna", num_samples=num_samples
+            ).mean(0),
+            "μ_prot": self.handler.predict_local_variable(
+                "μ_prot", num_samples=num_samples
+            ).mean(0),
+            "α_rna": self.handler.predict_global_variable(
+                "α_rna", num_samples=num_samples
+            ).mean(0),
+            "α_prot": self.handler.predict_global_variable(
+                "α_prot", num_samples=num_samples
+            ).mean(0),
+            "V_prot": self.handler.predict_global_variable(
+                "V_fac", num_samples=num_samples
+            )
+            .mean(0)
+            .T,
+        }
+
+        adata.uns[f"{model_key}"]["design"] = get_states(self.design_matrix)
+        # adata.uns[f"{model_key}"]["batch"] = get_states(self.batch)
+        adata.uns[f"{model_key}"]["model"] = self.model_kwargs
+
         adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable(
             "z", num_samples=num_samples
-        ).mean(0)
-        adata.layers[f"{model_key}_pred_rna"] = self.handler.predict_local_variable(
-            "μ_rna", num_samples=num_samples
         ).mean(0)
 
         adata.varm[f"{model_key}"] = (
@@ -200,12 +153,3 @@ class scPCA(object):
             .mean(0)
             .T
         )
-
-        if isinstance(self.design_matrix, DesignMatrix):
-            adata.uns[f"{model_key}"] = {"design": get_states(self.design_matrix)}
-
-        state_loadings = get_state_loadings(adata, model_key)
-        adata.uns[f"{model_key}"]["states"] = state_loadings
-        adata.uns[f"{model_key}"]["α_rna"] = self.handler.predict_global_variable(
-            "α_rna"
-        ).mean(0)

@@ -2,8 +2,9 @@ import numpy as np
 import pyro
 import torch
 from pyro.infer import Predictive, Trace_ELBO
-from sccca.train.handler import SVIBaseHandler
 from tqdm import tqdm
+
+from .handler import SVIBaseHandler
 
 
 class SVILocalHandler(SVIBaseHandler):

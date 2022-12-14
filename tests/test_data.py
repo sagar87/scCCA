@@ -1,6 +1,6 @@
 import numpy as np
 
-from scCCA.data import get_rna_counts
+from scCCA.utils import get_rna_counts
 
 
 def test_get_rna_counts(test_sparse_anndata):

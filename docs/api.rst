@@ -9,5 +9,11 @@ Data functions
 
 The image accessor enables to easily subset the image container.
 
-.. automodule:: scCCA.data
+.. automodule:: scCCA.utils
+   :members:
+
+.. automodule:: scCCA.pca
+   :members:
+
+.. automodule:: scCCA.cca
    :members:
