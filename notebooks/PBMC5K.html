@@ -46,7 +46,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysing PBMC5K using scCCA</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysing PBMC5K using scCCA</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#HVG-selection">HVG selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Model-training">Model training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Model-fit">Model fit</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Down-stream-analysis">Down stream analysis</a></li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -372,6 +381,9 @@ import scCCA as scc
 </pre></div>
 </div>
 </div>
+<section id="Preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#Preprocessing" title="Permalink to this headline"></a></h2>
+<p>In this tutorial we illustrate how to apply <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> to the 10X PBMC5K dataset. We start by loading the the data using <code class="docutils literal notranslate"><span class="pre">scanpy</span></code>. Note that we have to pass the <code class="docutils literal notranslate"><span class="pre">gex_only=False</span></code> argument to avoid dropping the ADT counts.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -397,6 +409,7 @@ import scCCA as scc
 </pre></div>
 </div>
 </div>
+<p>Now, we separate the protein data from the RNA count matrix and store it separately in the <code class="docutils literal notranslate"><span class="pre">adata.obsm</span></code> field. The following lines of code extract the protein names and barcodes to create a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> for the protein count data.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -414,6 +427,7 @@ row_names = adata.obs.index.tolist()
 </pre></div>
 </div>
 </div>
+<p>Before we save the protein count table to the <code class="docutils literal notranslate"><span class="pre">adata</span></code> object, we drop the control ADTs IgG1, IgG2 and IgG2b. Finally, we subset the <code class="docutils literal notranslate"><span class="pre">adata</span></code> object such that <code class="docutils literal notranslate"><span class="pre">adata.X</span></code> contains RNA counts only, while the ADT data is stored in <code class="docutils literal notranslate"><span class="pre">adata.obsm['protein_expression']</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -430,6 +444,10 @@ row_names = adata.obs.index.tolist()
 </pre></div>
 </div>
 </div>
+</section>
+<section id="HVG-selection">
+<h2>HVG selection<a class="headerlink" href="#HVG-selection" title="Permalink to this headline"></a></h2>
+<p>Next, we select highly variable genes from the data. We employ the <code class="docutils literal notranslate"><span class="pre">highly_variable_genes</span></code> function from <code class="docutils literal notranslate"><span class="pre">scanpy</span></code> using the <code class="docutils literal notranslate"><span class="pre">seurat_v3</span></code> settings which directly operates on count data (that is in contrast to other HVG selection procedures that require some sort of preprocessing). Supplying the <code class="docutils literal notranslate"><span class="pre">subset=True</span></code> argument drops all unneccessary features from the data such that we can directly proceed by fitting the <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> model.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -452,11 +470,15 @@ row_names = adata.obs.index.tolist()
   self.data[key] = value
 </pre></div></div>
 </div>
+</section>
+<section id="Model-training">
+<h2>Model training<a class="headerlink" href="#Model-training" title="Permalink to this headline"></a></h2>
+<p>Training the <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> model is easy for this simple data set. All we need to provide is the <code class="docutils literal notranslate"><span class="pre">adata</span></code> object, the number of factors we want to fit and the respective <code class="docutils literal notranslate"><span class="pre">obsm</span></code> key for the protein data. The <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> constructor returns a <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> model instance which we can train by calling its <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0 = scc.scCCA(adata, 15, protein_obsm_key=&#39;protein_expression&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0 = scc.scCCA(adata, num_factors=15, protein_obsm_key=&#39;protein_expression&#39;)
 </pre></div>
 </div>
 </div>
@@ -478,6 +500,7 @@ row_names = adata.obs.index.tolist()
 Epoch: 4990 | lr: 1.00E-02 | ELBO: 4216514 | Δ_10: 11731.50 | Best: 4164478: 100%|██████████| 5000/5000 [06:14&lt;00:00, 13.35it/s]
 </pre></div></div>
 </div>
+<p>In many cases it is adviseable to train the model for a few additional epochs with a smaller learning rate. We can call the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method for a second time and pass the arguments <code class="docutils literal notranslate"><span class="pre">lr=0.001</span></code> to continue the training with a learning rate of 0.001 (initally it was 0.01).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -494,6 +517,7 @@ Epoch: 4990 | lr: 1.00E-02 | ELBO: 4216514 | Δ_10: 11731.50 | Best: 4164478: 10
 Epoch: 9990 | lr: 1.00E-03 | ELBO: 4176325 | Δ_10: 14536.00 | Best: 4141708: 100%|██████████| 5000/5000 [05:49&lt;00:00, 14.30it/s]
 </pre></div></div>
 </div>
+<p>To obtain the posterior mean of the fitted model parameters we call the <code class="docutils literal notranslate"><span class="pre">to_anndata</span></code> function and pass a sensible <code class="docutils literal notranslate"><span class="pre">model_key</span></code> argument. The <code class="docutils literal notranslate"><span class="pre">scCCA</span></code> class will save the loadings and factors in <code class="docutils literal notranslate"><span class="pre">adata.varm[model_key]</span></code> and <code class="docutils literal notranslate"><span class="pre">adata.obsm[f'X_{model_key}']</span></code>, respectively. Additional metadata and parameters are saved to <code class="docutils literal notranslate"><span class="pre">adata.uns[model_key]</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -512,6 +536,9 @@ Predicting μ_prot for obs 4096-5246.: 100%|██████████| 3/3 
 Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00&lt;00:00,  3.79it/s]
 </pre></div></div>
 </div>
+<section id="Model-fit">
+<h3>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline"></a></h3>
+<p>Before moving on with more elaborate downstream analyses, we assess the fit of the model by using the following plotting functions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -533,7 +560,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_14_1.png" src="../_images/notebooks_PBMC5K_14_1.png" />
+<img alt="../_images/notebooks_PBMC5K_22_1.png" src="../_images/notebooks_PBMC5K_22_1.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -557,33 +584,14 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_15_1.png" src="../_images/notebooks_PBMC5K_15_1.png" />
+<img alt="../_images/notebooks_PBMC5K_23_1.png" src="../_images/notebooks_PBMC5K_23_1.png" />
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>scc.pl.disp(adata, model_key=&#39;rank15&#39;)
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-&lt;AxesSubplot: xlabel=&#39;$\\alpha$&#39;, ylabel=&#39;CV&#39;&gt;
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_16_1.png" src="../_images/notebooks_PBMC5K_16_1.png" />
-</div>
-</div>
+</section>
+</section>
+<section id="Down-stream-analysis">
+<h2>Down stream analysis<a class="headerlink" href="#Down-stream-analysis" title="Permalink to this headline"></a></h2>
+<p>Once we trust our model we can proceed with our prefered pipeline to analyse CITE-seq data.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -629,7 +637,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_20_1.png" src="../_images/notebooks_PBMC5K_20_1.png" />
+<img alt="../_images/notebooks_PBMC5K_28_1.png" src="../_images/notebooks_PBMC5K_28_1.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -976,7 +984,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_23_0.png" src="../_images/notebooks_PBMC5K_23_0.png" />
+<img alt="../_images/notebooks_PBMC5K_31_0.png" src="../_images/notebooks_PBMC5K_31_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -987,6 +995,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 </pre></div>
 </div>
 </div>
+</section>
 </section>
 
 
