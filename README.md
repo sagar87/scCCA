@@ -2,6 +2,11 @@
 
 [![PyPI version](https://badge.fury.io/py/sccca.svg)](https://badge.fury.io/py/sccca)
 
+<p align="center" width="100%">
+    <img width="90%" src="docs/concept.png">
+</p>
+
+
 Cellular indexing of transcriptomes and epitopes by sequencing (CITE-seq) enables paired measurements of transcriptome-wide gene expression and 
 surface proteins in single cells. While CITE-seq represents a promising way to associate cellular phenotypes with transcriptional variation, it 
 also challenges unsupervised integration approaches due to the technical characteristics of each measured modality. Methods based on weighted-nearest 
@@ -13,6 +18,4 @@ scCCA extensively on simulated data and assess its utility by applying it to mul
 solution for the joint dimensionality reduction in single-cell multimodal data yielding identifiable factors that represent biologically meaningful 
 axes of variation.
 
-<p align="center" width="100%">
-    <img width="50%" src="docs/concept.png">
-</p>
+
