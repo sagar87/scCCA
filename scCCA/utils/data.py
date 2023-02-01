@@ -6,6 +6,15 @@ from anndata import AnnData
 from scipy.sparse import issparse
 
 
+def extract_counts(adata, layers_key, protein_obsm_key):
+    if protein_obsm_key is not None:
+        counts = get_protein_counts(adata, protein_obsm_key)
+    else:
+        counts = get_rna_counts(adata, layers_key)
+
+    return counts
+
+
 def get_rna_counts(adata: AnnData, layers_key: Union[str, None] = None) -> np.ndarray:
     """
     Extracts RNA counts from AnnData object.

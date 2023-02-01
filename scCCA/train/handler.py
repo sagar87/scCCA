@@ -117,9 +117,7 @@ class SVIBaseHandler:
         """
         for name, param in self.optimizer.get_state().items():
             if "optimizer" in param:
-                self.learning_rates[name].append(
-                    param["optimizer"]["param_groups"][0]["lr"]
-                )
+                self.learning_rates[name].append(param["optimizer"]["param_groups"][0]["lr"])
             else:
                 self.learning_rates[name].append(param["param_groups"][0]["lr"])
 
@@ -127,9 +125,7 @@ class SVIBaseHandler:
         # Register hooks to monitor gradient norms.
 
         for name, value in pyro.get_param_store().named_parameters():
-            value.register_hook(
-                lambda g, name=name: self.gradient_norms[name].append(g.norm().item())
-            )
+            value.register_hook(lambda g, name=name: self.gradient_norms[name].append(g.norm().item()))
 
     def _fit(self, *args, **kwargs):
         losses = []

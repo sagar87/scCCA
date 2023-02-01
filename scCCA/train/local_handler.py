@@ -118,8 +118,6 @@ class SVILocalHandler(SVIBaseHandler):
             self.predict([var], num_samples=num_samples, idx=split_obs[i])
             results.append(self.posterior[var])
             # update status bar
-            pbar.set_description(
-                f"Predicting {var} for obs {torch.min(split_obs[i])}-{torch.max(split_obs[i])}."
-            )
+            pbar.set_description(f"Predicting {var} for obs {torch.min(split_obs[i])}-{torch.max(split_obs[i])}.")
 
         return np.concatenate(results, obs_dim)

@@ -20,208 +20,21 @@ def model(
     Y,
     X_size,
     Y_size,
+    design,
     batch,
+    design_idx,
+    batch_idx,
     idx,
     num_genes,
     num_proteins,
     num_batches,
     num_cells,
     num_factors,
-    design,
     device,
     subsampling=0,
-    β_rna_mean=3.,
-    β_rna_sd=.1,
-    W_fac_sd=1.,
-    z_sd=0.1,
-    horseshoe=False,
-    batch_beta=False,
-    intercept=True,
-    constrain_alpha=False,
-    fix_alpha_rna=None,
-    minibatches=False,
-    *args,
-    **kwargs
-):
-
-    gene_plate = plate("genes", num_genes)
-    
-    if Y is not None:
-        protein_plate = plate("proteins", num_proteins)
-    
-    # cell_plate = plate("cells", num_cells)
-    batch_plate = plate("batches", num_batches)
-    factor_plate = plate("factor", num_factors)
-    # num groups from the design matrix
-    num_groups = design.shape[1]
-    group_plate = plate('groups', num_groups)
-    
-    if subsampling > 0:
-        cell_plate = plate("cells", num_cells, subsample_size=subsampling)
-    else:
-        cell_plate = plate("cells", num_cells, subsample=idx)
-
-    # factor matrices
-    if horseshoe:
-        with pyro.plate('modality', 2):
-            tau = pyro.sample('tau', HalfCauchy(ones(1, device=device)))                
-    
-    with group_plate:
-
-        # W_fac = sample("W_fac", Normal(zeros(num_genes, device=device), ones(num_genes, device=device)).to_event(2))
-        W_fac = sample("W_fac", Normal(zeros((num_factors, num_genes), device=device), W_fac_sd * ones((num_factors, num_genes), device=device)).to_event(2))
-        # scale additive factors
-        # W_fac = W_fac * torch.cat([torch.ones((1, num_factors, num_genes), device=device), W_fac_sd * torch.ones((num_groups-1, num_factors, num_genes), device=device)], 0)
-        # torch.ones((num_groups, num_factors, num_genes), device=device)
-        # print(W_fac.shape)11
-        if Y is not None:
-            V_fac = sample("V_fac", Normal(zeros((num_factors, num_proteins), device=device), ones((num_factors, num_proteins), device=device)).to_event(2))
-
-        if horseshoe: # turns on sparsity priors
-            W_del = sample('W_del', HalfCauchy(ones(1, device=device)))
-            W_lam = sample('W_lam', HalfCauchy(ones(num_genes, device=device)).to_event(1))
-            W_c = sample("W_c", InverseGamma(0.5 * ones(num_genes, device=device), 0.5 * ones(num_genes, device=device)).to_event(1))
-
-            # print(W_tau.shape, W_lam.shape, W_fac.shape)
-            W_gamma = (tau[0] * W_del.reshape(-1, 1) * W_lam)
-            W_fac = deterministic("W_horse", W_fac * (torch.sqrt(W_c) * W_gamma) / torch.sqrt(W_c + W_gamma**2))
-
-            V_del = sample('V_del', HalfCauchy(ones(1, device=device)))
-            V_lam = sample('V_lam', HalfCauchy(ones(num_proteins, device=device)).to_event(1))            
-            V_c = sample("V_c", InverseGamma(0.5 * ones(num_proteins, device=device), 0.5 * ones(num_proteins, device=device)).to_event(1))
-
-            V_gamma = (tau[1] * V_del.reshape(-1, 1) * V_lam)
-            V_fac = deterministic("V_horse", V_fac * (torch.sqrt(V_c) * V_gamma) / torch.sqrt(V_c + V_gamma**2))
-
-    # if design is not None:
-    #     with group_plate:    
-    #         W_grp = sample("W_grp", Normal(zeros((num_factors, num_genes), device=device), ones((num_factors, num_genes), device=device)).to_event(2))
-    #         # print('W_grp', W_grp.shape)
-    #         # base = zeros((1, num_factors, num_genes), device=device)
-    #             # print(Normal(zeros(num_genes, device=device), ones(num_genes, device=device)).to_event(1).batch_shape)
-    #         W_grp_cat = torch.cat([W_fac.unsqueeze(0), W_grp], 0)
-            
-    if intercept:
-        with batch_plate:
-            W_add = sample("W_add", Normal(zeros(num_genes, device=device), ones(num_genes, device=device)).to_event(1))
-            
-            if Y is not None:
-                V_add = sample("V_add", Normal(zeros(num_proteins, device=device), ones(num_proteins, device=device)).to_event(1))
-    else:
-        W_add = torch.zeros((num_batches, num_genes), device=device)
-        
-        if Y is not None:
-            V_add = torch.zeros((num_batches, num_proteins), device=device)
-        
-            
-    β_rna_conc = β_rna_mean**2/β_rna_sd**2,
-    β_rna_rate = β_rna_mean/β_rna_sd**2,
-    
-    if batch_beta:
-        with batch_plate:
-            β_rna = sample("β_rna", Gamma(tensor(β_rna_conc, device=device), tensor(β_rna_rate, device=device)))
-            
-            if Y is not None:
-                β_prot = sample("β_prot", Gamma(tensor(9.0, device=device), tensor(3.0, device=device)))
-        
-        with gene_plate:
-            α_rna_inv = sample("α_rna_inv", Exponential(β_rna).to_event(1))
-            α_rna = deterministic("α_rna", (1 / α_rna_inv).T)
-        
-        # print('model', α_rna_inv.shape)
-        if Y is not None:
-            with protein_plate:
-                α_prot_inv = sample("α_prot_inv", Exponential(β_prot).to_event(1))
-                α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
-
-    else:
-        β_rna = sample("β_rna", Gamma(tensor(β_rna_conc, device=device), tensor(β_rna_rate, device=device)))
-        if Y is not None:
-            β_prot = sample("β_prot", Gamma(tensor(9.0, device=device), tensor(3.0, device=device)))
-
-        with gene_plate:
-            α_rna_inv = sample("α_rna_inv", Exponential(β_rna))
-            α_rna = deterministic("α_rna", (1 / α_rna_inv).T)
-            
-            # print('model', α_rna_inv.shape)
-            
-        if Y is not None:
-            with protein_plate:
-                α_prot_inv = sample("α_prot_inv", Exponential(β_prot))
-                α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
-
-            
-    if subsampling > 0 or minibatches:
-        with cell_plate as ind:
-            z = sample("z", Normal(zeros(num_factors, device=device), z_sd * ones(num_factors, device=device),).to_event(1),)
-
-            W_rna = (design[ind].T.unsqueeze(-1) * einsum("cf,bfp->bcp", z,  W_fac)).sum(0)
-            # print(batch[ind].shape, W_add.shape)
-            intercept_rna = batch[ind] @ W_add
-
-            μ_rna = deterministic("μ_rna", exp(X_size[ind] + intercept_rna + W_rna))
-            
-            if Y is not None:
-                V_prot = (design[ind].T.unsqueeze(-1) * einsum("cf,bfp->bcp", z,  V_fac)).sum(0)
-                intercept_prot = batch[ind] @ V_add                
-                
-                μ_prot = deterministic("μ_prot", exp(Y_size[ind] + intercept_prot + V_prot))
-            
-            if batch_beta:
-                α_rna_bat = batch[ind] @ α_rna
-                if Y is not None:
-                    α_prot_bat = batch[ind] @ α_prot
-            else:
-                α_rna_bat = α_rna
-                
-                if Y is not None:
-                    α_prot_bat = α_prot
-            
-            sample("rna", GammaPoisson(α_rna_bat, α_rna_bat / μ_rna).to_event(1), obs=X[ind])
-            if Y is not None:
-                sample("prot", GammaPoisson(α_prot_bat, α_prot_bat / μ_prot).to_event(1), obs=Y[ind])
-    else:
-        with cell_plate:
-            z = sample("z", Normal(zeros(num_factors, device=device),0.1 * ones(num_factors, device=device),).to_event(1),)
-
-            μ_rna = deterministic("μ_rna", exp((batch.T.unsqueeze(-1) * (X_size.unsqueeze(0) + W_add.unsqueeze(1) + einsum("cf,bfp->bcp", z, W_fac.unsqueeze(0)))).sum(0)))
-            
-            if Y is not None:
-                μ_prot = deterministic("μ_prot", exp((batch.T.unsqueeze(-1) * (Y_size.unsqueeze(0) + V_add.unsqueeze(1) + einsum("cf,bfp->bcp", z, V_fac.unsqueeze(0)))).sum(0)))
-            
-            if batch_beta:
-                α_rna_bat = batch @ α_rna
-                if Y is not None:
-                    α_prot_bat = batch @ α_prot
-            else:
-                α_rna_bat = α_rna
-                if Y is not None:
-                    α_prot_bat = α_prot
-            
-            sample("rna", GammaPoisson(α_rna_bat, α_rna_bat / μ_rna).to_event(1), obs=X)
-            
-            if Y is not None:
-                sample("prot", GammaPoisson(α_prot_bat, α_prot_bat / μ_prot).to_event(1), obs=Y)
-                
-
-def guide(
-    X,
-    Y,
-    X_size,
-    Y_size,
-    batch,
-    idx,
-    num_genes,
-    num_proteins,
-    num_batches,
-    num_cells,
-    num_factors,
-    design,
-    device,
-    subsampling=0,
-    β_rna_mean=3.,
-    β_rna_sd=.1,
-    W_fac_sd=1.,
+    β_rna_mean=3.0,
+    β_rna_sd=0.1,
+    W_fac_sd=1.0,
     z_sd=1.,
     horseshoe=False,
     batch_beta=False,
@@ -234,54 +47,419 @@ def guide(
 ):
 
     gene_plate = plate("genes", num_genes)
+
+    if Y is not None:
+        protein_plate = plate("proteins", num_proteins)
+
+    # cell_plate = plate("cells", num_cells)
+    batch_plate = plate("batches", num_batches)
+    factor_plate = plate("factor", num_factors)
+    # num groups from the design matrix
+    num_groups = design.shape[1]
+    group_plate = plate("groups", num_groups)
+
+    if subsampling > 0:
+        cell_plate = plate("cells", num_cells, subsample_size=subsampling)
+    else:
+        cell_plate = plate("cells", num_cells, subsample=idx)
+
+    # factor matrices
+    if horseshoe:
+        with pyro.plate("modality", 2):
+            tau = pyro.sample("tau", HalfCauchy(ones(1, device=device)))
+            
+    normed_design = design * design.sum(1, keepdim=True) ** -.5
+    normed_batch = batch * batch.sum(1, keepdim=True) ** -.5
+    
+    with group_plate:
+
+        # W_fac = sample("W_fac", Normal(zeros(num_genes, device=device), ones(num_genes, device=device)).to_event(2))
+        W_fac = sample(
+            "W_fac",
+            Normal(
+                zeros((num_factors, num_genes), device=device),
+                W_fac_sd * ones((num_factors, num_genes), device=device),
+            ).to_event(2),
+        )
+        # scale additive factors
+        # W_fac = W_fac * torch.cat([torch.ones((1, num_factors, num_genes), device=device), W_fac_sd * torch.ones((num_groups-1, num_factors, num_genes), device=device)], 0)
+        # torch.ones((num_groups, num_factors, num_genes), device=device)
+        # print(W_fac.shape)11
+        if Y is not None:
+            V_fac = sample(
+                "V_fac",
+                Normal(
+                    zeros((num_factors, num_proteins), device=device),
+                    ones((num_factors, num_proteins), device=device),
+                ).to_event(2),
+            )
+
+        if horseshoe:  # turns on sparsity priors
+            W_del = sample("W_del", HalfCauchy(ones(1, device=device)))
+            W_lam = sample(
+                "W_lam", HalfCauchy(ones(num_genes, device=device)).to_event(1)
+            )
+            W_c = sample(
+                "W_c",
+                InverseGamma(
+                    0.5 * ones(num_genes, device=device),
+                    0.5 * ones(num_genes, device=device),
+                ).to_event(1),
+            )
+
+            # print(W_tau.shape, W_lam.shape, W_fac.shape)
+            W_gamma = tau[0] * W_del.reshape(-1, 1) * W_lam
+            W_fac = deterministic(
+                "W_horse",
+                W_fac * (torch.sqrt(W_c) * W_gamma) / torch.sqrt(W_c + W_gamma ** 2),
+            )
+
+            V_del = sample("V_del", HalfCauchy(ones(1, device=device)))
+            V_lam = sample(
+                "V_lam", HalfCauchy(ones(num_proteins, device=device)).to_event(1)
+            )
+            V_c = sample(
+                "V_c",
+                InverseGamma(
+                    0.5 * ones(num_proteins, device=device),
+                    0.5 * ones(num_proteins, device=device),
+                ).to_event(1),
+            )
+
+            V_gamma = tau[1] * V_del.reshape(-1, 1) * V_lam
+            V_fac = deterministic(
+                "V_horse",
+                V_fac * (torch.sqrt(V_c) * V_gamma) / torch.sqrt(V_c + V_gamma ** 2),
+            )
+
+    # if design is not None:
+    #     with group_plate:
+    #         W_grp = sample("W_grp", Normal(zeros((num_factors, num_genes), device=device), ones((num_factors, num_genes), device=device)).to_event(2))
+    #         # print('W_grp', W_grp.shape)
+    #         # base = zeros((1, num_factors, num_genes), device=device)
+    #             # print(Normal(zeros(num_genes, device=device), ones(num_genes, device=device)).to_event(1).batch_shape)
+    #         W_grp_cat = torch.cat([W_fac.unsqueeze(0), W_grp], 0)
+
+    if intercept:
+        with batch_plate:
+            W_add = sample(
+                "W_add",
+                Normal(
+                    zeros(num_genes, device=device), ones(num_genes, device=device)
+                ).to_event(1),
+            )
+
+            if Y is not None:
+                V_add = sample(
+                    "V_add",
+                    Normal(
+                        zeros(num_proteins, device=device),
+                        ones(num_proteins, device=device),
+                    ).to_event(1),
+                )
+    else:
+        W_add = torch.zeros((num_batches, num_genes), device=device)
+
+        if Y is not None:
+            V_add = torch.zeros((num_batches, num_proteins), device=device)
+
+    β_rna_conc = (β_rna_mean ** 2 / β_rna_sd ** 2,)
+    β_rna_rate = (β_rna_mean / β_rna_sd ** 2,)
+
+    if batch_beta:
+        with batch_plate:
+            β_rna = sample(
+                "β_rna",
+                Gamma(
+                    tensor(β_rna_conc, device=device), tensor(β_rna_rate, device=device)
+                ),
+            )
+
+            if Y is not None:
+                β_prot = sample(
+                    "β_prot",
+                    Gamma(tensor(9.0, device=device), tensor(3.0, device=device)),
+                )
+
+        with gene_plate:
+            α_rna_inv = sample("α_rna_inv", Exponential(β_rna).to_event(1))
+            α_rna = deterministic("α_rna", (1 / α_rna_inv).T)
+
+        # print('model', α_rna_inv.shape)
+        if Y is not None:
+            with protein_plate:
+                α_prot_inv = sample("α_prot_inv", Exponential(β_prot).to_event(1))
+                α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
+
+    else:
+        β_rna = sample(
+            "β_rna",
+            Gamma(tensor(β_rna_conc, device=device), tensor(β_rna_rate, device=device)),
+        )
+        if Y is not None:
+            β_prot = sample(
+                "β_prot", Gamma(tensor(9.0, device=device), tensor(3.0, device=device))
+            )
+
+        with gene_plate:
+            α_rna_inv = sample("α_rna_inv", Exponential(β_rna))
+            α_rna = deterministic("α_rna", (1 / α_rna_inv).T)
+
+            # print('model', α_rna_inv.shape)
+
+        if Y is not None:
+            with protein_plate:
+                α_prot_inv = sample("α_prot_inv", Exponential(β_prot))
+                α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
+
+    if subsampling > 0 or minibatches:
+        with cell_plate as ind:
+            z = sample(
+                "z",
+                Normal(
+                    zeros(num_factors, device=device),
+                    z_sd * ones(num_factors, device=device),
+                ).to_event(1),
+            )
+            
+            intercept_mat = normed_batch[batch_idx[ind]]
+            design_indicator = design_idx[ind]
+            cell_indicator = torch.arange(ind.shape[0])
+            
+            # construct bases for each column of in D
+            W_lin = (design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1)
+            # print('======= W_fac ======', W_fac.shape)
+            # print(W_fac)
+            # print('======= normed_design ======', normed_design.shape)
+            # print(design.unsqueeze(2).unsqueeze(3))
+            # print('======= normed_design * W_fac ======')
+            # print(design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0))
+            # print('======= W_fac_red ======')
+            # print((design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1))
+            # print('======= W_fac_lin ======')
+            # print(W_lin)
+            # print('======= ind ======')
+            # print(ind)
+            # print('======= design ======')
+            # print(design_idx[ind])
+            
+            W_vec = pyro.deterministic('W_vec', W_lin) #  / torch.linalg.norm(W_lin, dim=2, keepdims=True)
+            
+            Wz = einsum("cf,bfp->bcp", z, W_vec)
+            # print(Wz)
+            intercept_rna = intercept_mat @ W_add
+
+            μ_rna = deterministic("μ_rna", exp(X_size[ind] + intercept_rna + Wz[design_indicator, cell_indicator]))
+            
+            
+            if Y is not None:
+                V_lin = torch.sum(normed_design.unsqueeze(2).unsqueeze(3) * V_fac.unsqueeze(0), 1)
+                V_vec = pyro.deterministic('V_vec', V_lin / torch.linalg.norm(V_lin, dim=2, keepdims=True))
+                
+                Vz = einsum("cf,bfp->bcp", z, V_vec)                        
+                intercept_prot = intercept_mat @ V_add
+
+                μ_prot = deterministic(
+                    "μ_prot", exp(Y_size[ind] + intercept_prot + Vz[design_indicator, cell_indicator])
+                )
+
+            if batch_beta:
+                α_rna_bat = intercept_mat @ α_rna
+                if Y is not None:
+                    α_prot_bat = intercept_mat @ α_prot
+            else:
+                α_rna_bat = α_rna
+
+                if Y is not None:
+                    α_prot_bat = α_prot
+
+            sample(
+                "rna",
+                GammaPoisson(α_rna_bat, α_rna_bat / μ_rna).to_event(1),
+                obs=X[ind],
+            )
+            if Y is not None:
+                sample(
+                    "prot",
+                    GammaPoisson(α_prot_bat, α_prot_bat / μ_prot).to_event(1),
+                    obs=Y[ind],
+                )
+    else:
+        with cell_plate:
+            z = sample(
+                "z",
+                Normal(
+                    zeros(num_factors, device=device),
+                    0.1 * ones(num_factors, device=device),
+                ).to_event(1),
+            )
+
+            μ_rna = deterministic(
+                "μ_rna",
+                exp(
+                    (
+                        batch.T.unsqueeze(-1)
+                        * (
+                            X_size.unsqueeze(0)
+                            + W_add.unsqueeze(1)
+                            + einsum("cf,bfp->bcp", z, W_fac.unsqueeze(0))
+                        )
+                    ).sum(0)
+                ),
+            )
+
+            if Y is not None:
+                μ_prot = deterministic(
+                    "μ_prot",
+                    exp(
+                        (
+                            batch.T.unsqueeze(-1)
+                            * (
+                                Y_size.unsqueeze(0)
+                                + V_add.unsqueeze(1)
+                                + einsum("cf,bfp->bcp", z, V_fac.unsqueeze(0))
+                            )
+                        ).sum(0)
+                    ),
+                )
+
+            if batch_beta:
+                α_rna_bat = batch @ α_rna
+                if Y is not None:
+                    α_prot_bat = batch @ α_prot
+            else:
+                α_rna_bat = α_rna
+                if Y is not None:
+                    α_prot_bat = α_prot
+
+            sample("rna", GammaPoisson(α_rna_bat, α_rna_bat / μ_rna).to_event(1), obs=X)
+
+            if Y is not None:
+                sample(
+                    "prot",
+                    GammaPoisson(α_prot_bat, α_prot_bat / μ_prot).to_event(1),
+                    obs=Y,
+                )
+
+
+def guide(
+    X,
+    Y,
+    X_size,
+    Y_size,
+    design,
+    batch,
+    design_idx,
+    batch_idx,
+    idx,
+    num_genes,
+    num_proteins,
+    num_batches,
+    num_cells,
+    num_factors,
+    device,
+    subsampling=0,
+    β_rna_mean=3.0,
+    β_rna_sd=0.1,
+    W_fac_sd=1.0,
+    z_sd=1.0,
+    horseshoe=False,
+    batch_beta=False,
+    intercept=True,
+    constrain_alpha=False,
+    fix_alpha_rna=None,
+    minibatches=False,
+    *args,
+    **kwargs
+):
+
+    gene_plate = plate("genes", num_genes)
     if Y is not None:
         protein_plate = plate("proteins", num_proteins)
     batch_plate = plate("batches", num_batches)
     # cell_plate = plate("cells", num_cells)
     factor_plate = plate("factor", num_factors)
-    
+
     # design matrix
-    num_groups = design.shape[1] 
-    group_plate = plate('groups', num_groups)
-    
-    
+    num_groups = design.shape[1]
+    group_plate = plate("groups", num_groups)
+
     if subsampling > 0:
         cell_plate = plate("cells", num_cells, subsample_size=subsampling)
     else:
         cell_plate = plate("cells", num_cells, subsample=idx)
-        
-    W_fac_loc = param("W_fac_loc", zeros((num_groups, num_factors, num_genes), device=device))
-    W_fac_scale = param( "W_fac_scale", 0.1 * ones((num_groups, num_factors, num_genes), device=device), constraint=positive)
-    
+
+    W_fac_loc = param(
+        "W_fac_loc", zeros((num_groups, num_factors, num_genes), device=device)
+    )
+    W_fac_scale = param(
+        "W_fac_scale",
+        0.1 * ones((num_groups, num_factors, num_genes), device=device),
+        constraint=positive,
+    )
+
     if Y is not None:
-        V_fac_loc = param("V_fac_loc", zeros((num_groups, num_factors, num_proteins), device=device))
-        V_fac_scale = param("V_fac_scale", 0.1 * ones((num_groups, num_factors, num_proteins), device=device), constraint=positive)
-        
+        V_fac_loc = param(
+            "V_fac_loc", zeros((num_groups, num_factors, num_proteins), device=device)
+        )
+        V_fac_scale = param(
+            "V_fac_scale",
+            0.1 * ones((num_groups, num_factors, num_proteins), device=device),
+            constraint=positive,
+        )
+
     if horseshoe:
         tau_loc = param("tau_loc", zeros(2, device=device))
-        tau_scale = param( "tau_scale", 0.1 * ones(2, device=device), constraint=positive)        
-        
-        with pyro.plate('modality', 2):
-            sample("tau", TransformedDistribution(Normal(tau_loc, tau_scale), ExpTransform()))
-            
+        tau_scale = param(
+            "tau_scale", 0.1 * ones(2, device=device), constraint=positive
+        )
+
+        with pyro.plate("modality", 2):
+            sample(
+                "tau",
+                TransformedDistribution(Normal(tau_loc, tau_scale), ExpTransform()),
+            )
+
         W_del_loc = param("W_del_loc", zeros(num_factors, device=device))
-        W_del_scale = param( "W_del_scale", 0.1 * ones(num_factors, device=device), constraint=positive)        
-        
+        W_del_scale = param(
+            "W_del_scale", 0.1 * ones(num_factors, device=device), constraint=positive
+        )
+
         W_lam_loc = param("W_lam_loc", zeros((num_factors, num_genes), device=device))
-        W_lam_scale = param( "W_lam_scale", 0.1 * ones((num_factors, num_genes), device=device), constraint=positive)
-        
+        W_lam_scale = param(
+            "W_lam_scale",
+            0.1 * ones((num_factors, num_genes), device=device),
+            constraint=positive,
+        )
+
         W_c_loc = param("W_c_loc", zeros((num_factors, num_genes), device=device))
-        W_c_scale = param( "W_c_scale", 0.1 * ones((num_factors, num_genes), device=device), constraint=positive)
-        
+        W_c_scale = param(
+            "W_c_scale",
+            0.1 * ones((num_factors, num_genes), device=device),
+            constraint=positive,
+        )
+
         V_del_loc = param("V_del_loc", zeros(num_factors, device=device))
-        V_del_scale = param("V_del_scale", 0.1 * ones(num_factors, device=device), constraint=positive)        
-        
-        V_lam_loc = param("V_lam_loc", zeros((num_factors, num_proteins), device=device))
-        V_lam_scale = param( "V_lam_scale", 0.1 * ones((num_factors, num_proteins), device=device), constraint=positive)        
-        
+        V_del_scale = param(
+            "V_del_scale", 0.1 * ones(num_factors, device=device), constraint=positive
+        )
+
+        V_lam_loc = param(
+            "V_lam_loc", zeros((num_factors, num_proteins), device=device)
+        )
+        V_lam_scale = param(
+            "V_lam_scale",
+            0.1 * ones((num_factors, num_proteins), device=device),
+            constraint=positive,
+        )
+
         V_c_loc = param("V_c_loc", zeros((num_factors, num_proteins), device=device))
-        V_c_scale = param( "V_c_scale", 0.1 * ones((num_factors, num_proteins), device=device), constraint=positive)            
-    
+        V_c_scale = param(
+            "V_c_scale",
+            0.1 * ones((num_factors, num_proteins), device=device),
+            constraint=positive,
+        )
+
     with group_plate:
         sample("W_fac", Normal(W_fac_loc, W_fac_scale).to_event(2))
 
@@ -289,103 +467,209 @@ def guide(
             sample("V_fac", Normal(V_fac_loc, V_fac_scale).to_event(2))
 
         if horseshoe:
-            sample("W_del", TransformedDistribution(Normal(W_del_loc, W_del_scale), ExpTransform()))
-            sample("W_lam", TransformedDistribution(Normal(W_lam_loc, W_lam_scale), ExpTransform()).to_event(1))
-            sample("W_c", TransformedDistribution(Normal(W_c_loc, W_c_scale), ExpTransform()).to_event(1))
+            sample(
+                "W_del",
+                TransformedDistribution(Normal(W_del_loc, W_del_scale), ExpTransform()),
+            )
+            sample(
+                "W_lam",
+                TransformedDistribution(
+                    Normal(W_lam_loc, W_lam_scale), ExpTransform()
+                ).to_event(1),
+            )
+            sample(
+                "W_c",
+                TransformedDistribution(
+                    Normal(W_c_loc, W_c_scale), ExpTransform()
+                ).to_event(1),
+            )
 
-            sample("V_del", TransformedDistribution(Normal(V_del_loc, V_del_scale), ExpTransform()))
-            sample("V_lam", TransformedDistribution(Normal(V_lam_loc, V_lam_scale), ExpTransform()).to_event(1))                    
-            sample("V_c", TransformedDistribution(Normal(V_c_loc, V_c_scale), ExpTransform()).to_event(1))                    
-    
-#     if design is not None:
-#         W_grp_loc = param("W_grp_loc", zeros((num_groups, num_factors, num_genes), device=device))
-#         W_grp_scale = param( "W_grp_scale", 0.1 * ones((num_groups, num_factors, num_genes), device=device), constraint=positive)
+            sample(
+                "V_del",
+                TransformedDistribution(Normal(V_del_loc, V_del_scale), ExpTransform()),
+            )
+            sample(
+                "V_lam",
+                TransformedDistribution(
+                    Normal(V_lam_loc, V_lam_scale), ExpTransform()
+                ).to_event(1),
+            )
+            sample(
+                "V_c",
+                TransformedDistribution(
+                    Normal(V_c_loc, V_c_scale), ExpTransform()
+                ).to_event(1),
+            )
 
-#         with group_plate:
-#             sample("W_grp", Normal(W_grp_loc, W_grp_scale).to_event(2))
-    
+    #     if design is not None:
+    #         W_grp_loc = param("W_grp_loc", zeros((num_groups, num_factors, num_genes), device=device))
+    #         W_grp_scale = param( "W_grp_scale", 0.1 * ones((num_groups, num_factors, num_genes), device=device), constraint=positive)
+
+    #         with group_plate:
+    #             sample("W_grp", Normal(W_grp_loc, W_grp_scale).to_event(2))
+
     # intercept terms
     if intercept:
         W_add_loc = param("W_add_loc", zeros((num_batches, num_genes), device=device),)
-        W_add_scale = param("W_add_scale", 0.1 * ones((num_batches, num_genes), device=device), constraint=positive)
-        
+        W_add_scale = param(
+            "W_add_scale",
+            0.1 * ones((num_batches, num_genes), device=device),
+            constraint=positive,
+        )
+
         if Y is not None:
-            V_add_loc = param( "V_add_loc", zeros((num_batches, num_proteins), device=device),)
-            V_add_scale = param("V_add_scale", 0.1 * ones((num_batches, num_proteins), device=device), constraint=positive)
+            V_add_loc = param(
+                "V_add_loc", zeros((num_batches, num_proteins), device=device),
+            )
+            V_add_scale = param(
+                "V_add_scale",
+                0.1 * ones((num_batches, num_proteins), device=device),
+                constraint=positive,
+            )
 
         with batch_plate:
             sample("W_add", Normal(W_add_loc, W_add_scale).to_event(1))
-            
+
             if Y is not None:
                 sample("V_add", Normal(V_add_loc, V_add_scale).to_event(1))
-            
+
     # account for batches in beta
     if batch_beta:
         β_rna_loc = param("β_rna_loc", zeros(num_batches, device=device))
-        β_rna_scale = param("β_rna_scale", ones(num_batches, device=device), constraint=positive)
-        
+        β_rna_scale = param(
+            "β_rna_scale", ones(num_batches, device=device), constraint=positive
+        )
+
         if Y is not None:
             β_prot_loc = param("β_prot_loc", zeros(num_batches, device=device))
-            β_prot_scale = param("β_prot_scale", ones(num_batches, device=device), constraint=positive)
-        
+            β_prot_scale = param(
+                "β_prot_scale", ones(num_batches, device=device), constraint=positive
+            )
+
         with batch_plate:
-            sample("β_rna", TransformedDistribution(Normal(β_rna_loc, β_rna_scale), ExpTransform()))
-            
+            sample(
+                "β_rna",
+                TransformedDistribution(Normal(β_rna_loc, β_rna_scale), ExpTransform()),
+            )
+
             if Y is not None:
-                sample("β_prot", TransformedDistribution(Normal(β_prot_loc, β_prot_scale), ExpTransform()))
+                sample(
+                    "β_prot",
+                    TransformedDistribution(
+                        Normal(β_prot_loc, β_prot_scale), ExpTransform()
+                    ),
+                )
     else:
         β_rna_loc = param("β_rna_loc", zeros(1, device=device))
         β_rna_scale = param("β_rna_scale", ones(1, device=device), constraint=positive)
-        
+
         if Y is not None:
             β_prot_loc = param("β_prot_loc", zeros(1, device=device))
-            β_prot_scale = param("β_prot_scale", ones(1, device=device), constraint=positive)        
-        
-        sample("β_rna", TransformedDistribution(Normal(β_rna_loc, β_rna_scale), ExpTransform()))
-        
+            β_prot_scale = param(
+                "β_prot_scale", ones(1, device=device), constraint=positive
+            )
+
+        sample(
+            "β_rna",
+            TransformedDistribution(Normal(β_rna_loc, β_rna_scale), ExpTransform()),
+        )
+
         if Y is not None:
-            sample("β_prot", TransformedDistribution(Normal(β_prot_loc, β_prot_scale), ExpTransform()))
-        # print('guide', β_rna_loc.shape)            
-        
+            sample(
+                "β_prot",
+                TransformedDistribution(
+                    Normal(β_prot_loc, β_prot_scale), ExpTransform()
+                ),
+            )
+        # print('guide', β_rna_loc.shape)
+
     if batch_beta:
         if constrain_alpha:
-            α_rna_loc = param("α_rna_loc", zeros((num_genes, num_batches), device=device), constraint=less_than(6.0))
+            α_rna_loc = param(
+                "α_rna_loc",
+                zeros((num_genes, num_batches), device=device),
+                constraint=less_than(6.0),
+            )
         else:
-            α_rna_loc = param("α_rna_loc", zeros((num_genes, num_batches), device=device))
-            
-        α_rna_scale = param("α_rna_scale", 0.1 * ones((num_genes, num_batches), device=device), constraint=positive)
-        
+            α_rna_loc = param(
+                "α_rna_loc", zeros((num_genes, num_batches), device=device)
+            )
+
+        α_rna_scale = param(
+            "α_rna_scale",
+            0.1 * ones((num_genes, num_batches), device=device),
+            constraint=positive,
+        )
+
         if Y is not None:
-            α_prot_loc = param("α_prot_loc", zeros((num_proteins, num_batches), device=device))
-            α_prot_scale = param("α_prot_scale", 0.1 * ones((num_proteins, num_batches), device=device), constraint=positive)
+            α_prot_loc = param(
+                "α_prot_loc", zeros((num_proteins, num_batches), device=device)
+            )
+            α_prot_scale = param(
+                "α_prot_scale",
+                0.1 * ones((num_proteins, num_batches), device=device),
+                constraint=positive,
+            )
 
         with gene_plate:
-            sample("α_rna_inv", TransformedDistribution(Normal(α_rna_loc, α_rna_scale), ExpTransform()).to_event(1))
-        
+            sample(
+                "α_rna_inv",
+                TransformedDistribution(
+                    Normal(α_rna_loc, α_rna_scale), ExpTransform()
+                ).to_event(1),
+            )
+
         if Y is not None:
             with protein_plate:
-                sample("α_prot_inv", TransformedDistribution(Normal(α_prot_loc, α_prot_scale), ExpTransform()).to_event(1))
+                sample(
+                    "α_prot_inv",
+                    TransformedDistribution(
+                        Normal(α_prot_loc, α_prot_scale), ExpTransform()
+                    ).to_event(1),
+                )
     else:
         if constrain_alpha:
-            α_rna_loc = param("α_rna_loc", zeros((num_genes), device=device), constraint=less_than(6.0))
+            α_rna_loc = param(
+                "α_rna_loc",
+                zeros((num_genes), device=device),
+                constraint=less_than(6.0),
+            )
         else:
             α_rna_loc = param("α_rna_loc", zeros((num_genes), device=device))
-            
-        α_rna_scale = param("α_rna_scale", 0.1 * ones((num_genes), device=device), constraint=positive)
-        
+
+        α_rna_scale = param(
+            "α_rna_scale", 0.1 * ones((num_genes), device=device), constraint=positive
+        )
+
         if Y is not None:
             α_prot_loc = param("α_prot_loc", zeros((num_proteins), device=device))
-            α_prot_scale = param("α_prot_scale", 0.1 * ones((num_proteins), device=device), constraint=positive)
+            α_prot_scale = param(
+                "α_prot_scale",
+                0.1 * ones((num_proteins), device=device),
+                constraint=positive,
+            )
 
         with gene_plate:
-            sample("α_rna_inv", TransformedDistribution(Normal(α_rna_loc, α_rna_scale), ExpTransform()))
-        
-        if Y is not None:    
+            sample(
+                "α_rna_inv",
+                TransformedDistribution(Normal(α_rna_loc, α_rna_scale), ExpTransform()),
+            )
+
+        if Y is not None:
             with protein_plate:
-                sample("α_prot_inv", TransformedDistribution(Normal(α_prot_loc, α_prot_scale), ExpTransform()))    
-    
+                sample(
+                    "α_prot_inv",
+                    TransformedDistribution(
+                        Normal(α_prot_loc, α_prot_scale), ExpTransform()
+                    ),
+                )
+
     z_loc = param("z_loc", zeros((num_cells, num_factors), device=device))
-    z_scale = param("z_scale", 0.1 * ones((num_cells, num_factors), device=device), constraint=positive)
+    z_scale = param(
+        "z_scale",
+        0.1 * ones((num_cells, num_factors), device=device),
+        constraint=positive,
+    )
 
     with cell_plate as ind:
-        sample("z", Normal(z_loc[ind], z_scale[ind]).to_event(1))    
+        sample("z", Normal(z_loc[ind], z_scale[ind]).to_event(1))

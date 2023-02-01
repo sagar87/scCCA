@@ -6,16 +6,7 @@ from matplotlib.colors import LogNorm
 from scipy.stats import variation
 from sklearn.metrics import mean_squared_error
 
-from ..utils import get_protein_counts, get_rna_counts
-
-
-def _extract_counts(adata, layers_key, protein_obsm_key):
-    if protein_obsm_key is not None:
-        counts = get_protein_counts(adata, protein_obsm_key)
-    else:
-        counts = get_rna_counts(adata, layers_key)
-
-    return counts
+from ..utils import extract_counts
 
 
 def disp(
@@ -52,12 +43,12 @@ def disp(
     ax: matplotlib.axes.Axes
     """
     # Extract counts
-    counts = _extract_counts(adata, layers_key, protein_obsm_key)
+    counts = extract_counts(adata, layers_key, protein_obsm_key)
     posterior_key = "α_prot" if protein_obsm_key is not None else "α_rna"
 
     if ax is None:
         plt.scatter(
-            adata.uns[model_key]["posterior"][posterior_key],
+            adata.uns[model_key][posterior_key],
             variation(counts, axis=0),
             c=counts.mean(0),
             cmap="viridis",
@@ -66,7 +57,7 @@ def disp(
         ax = plt.gca()
     else:
         ax.scatter(
-            adata.uns[model_key]["posterior"][posterior_key],
+            adata.uns[model_key][posterior_key],
             variation(counts, axis=0),
             c=counts.mean(0),
             cmap="viridis",
@@ -115,9 +106,9 @@ def qc_hist(
     ax: matplotlib.axes.Axes
     """
     # Extract counts
-    counts = _extract_counts(adata, layers_key, protein_obsm_key)
+    counts = extract_counts(adata, layers_key, protein_obsm_key)
     posterior_key = "μ_prot" if protein_obsm_key is not None else "μ_rna"
-    predicted_counts = adata.uns[model_key]["posterior"][posterior_key]
+    predicted_counts = adata.uns[model_key][posterior_key]
 
     if ax is None:
         plt.hist2d(

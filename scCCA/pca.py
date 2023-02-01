@@ -4,12 +4,11 @@ from typing import Union
 import numpy as np
 import torch
 from anndata import AnnData
-from patsy.design_info import DesignMatrix
 from torch.types import Device
 
 from .model import guide, model
 from .train import SUBSAMPLE, SVILocalHandler
-from .utils import get_formula, get_rna_counts, get_state_loadings, get_states
+from .utils import get_formula, get_rna_counts, get_states
 
 
 class scPCA(object):
@@ -76,6 +75,8 @@ class scPCA(object):
         # prepare design and batch matrix
         self.batch_matrix = get_formula(self.adata, self.batch_formula)
         self.design_matrix = get_formula(self.adata, self.design_formula)
+        self.batch_states = get_states(self.batch_matrix)
+        self.design_states = get_states(self.design_matrix)
 
         #
         self.model_kwargs = model_kwargs
@@ -89,10 +90,7 @@ class scPCA(object):
         """
         Helper method to convert numpy arrays of a dict to torch tensors.
         """
-        return {
-            k: torch.tensor(v, device=self.device) if isinstance(v, np.ndarray) else v
-            for k, v in data.items()
-        }
+        return {k: torch.tensor(v, device=self.device) if isinstance(v, np.ndarray) else v for k, v in data.items()}
 
     def _setup_data(self):
         """
@@ -100,8 +98,10 @@ class scPCA(object):
         """
         X = get_rna_counts(self.adata, self.layers_key)
         X_size = np.log(X.sum(axis=1, keepdims=True))
-        batch = np.asarray(self.batch_matrix).astype(np.float32)
-        design = np.asarray(self.design_matrix).astype(np.float32)
+        batch = np.asarray(self.batch_states.encoding).astype(np.float32)
+        design = np.asarray(self.design_states.encoding).astype(np.float32)
+        batch_idx = self.batch_states.index
+        design_idx = self.design_states.index
 
         num_genes = X.shape[1]
         num_cells = X.shape[0]
@@ -113,13 +113,15 @@ class scPCA(object):
             X_size=X_size,
             Y=None,
             Y_size=None,
+            design=design,
             batch=batch,
+            design_idx=design_idx,
+            batch_idx=batch_idx,
             idx=idx,
             num_genes=num_genes,
             num_proteins=None,
             num_batches=num_batches,
             num_cells=num_cells,
-            design=design,
         )
         return self._to_torch(data)
 
@@ -188,24 +190,17 @@ class scPCA(object):
         if adata is None:
             adata = self.adata
 
-        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable(
-            "z", num_samples=num_samples
-        ).mean(0)
-        adata.layers[f"{model_key}_pred_rna"] = self.handler.predict_local_variable(
-            "μ_rna", num_samples=num_samples
-        ).mean(0)
+        adata.uns[f"{model_key}"] = {}
+        res = adata.uns[f"{model_key}"]
 
-        adata.varm[f"{model_key}"] = (
-            self.handler.predict_global_variable("W_fac", num_samples=num_samples)
-            .mean(0)
-            .T
-        )
+        res["design"] = self.design_states.mapping
+        res["intercept"] = self.batch_states.mapping
+        res["model"] = self.model_kwargs
 
-        if isinstance(self.design_matrix, DesignMatrix):
-            adata.uns[f"{model_key}"] = {"design": get_states(self.design_matrix)}
+        res["α_rna"] = self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0)
+        res["W_fac"] = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0)
+        res["W_vec"] = self.handler.predict_global_variable("W_vec", num_samples=num_samples).mean(0)
+        res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
 
-        state_loadings = get_state_loadings(adata, model_key)
-        adata.uns[f"{model_key}"]["states"] = state_loadings
-        adata.uns[f"{model_key}"]["α_rna"] = self.handler.predict_global_variable(
-            "α_rna"
-        ).mean(0)
+        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
