@@ -200,7 +200,10 @@ class scPCA(object):
         res["α_rna"] = self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0)
         res["W_fac"] = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0)
         res["W_vec"] = self.handler.predict_global_variable("W_vec", num_samples=num_samples).mean(0)
+        res["W_lin"] = self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0)
         res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
+        res["z_vec"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples).mean(0)
 
         res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0)
         adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
+        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples).mean(0)

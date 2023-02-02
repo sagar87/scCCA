@@ -35,7 +35,7 @@ def model(
     β_rna_mean=3.0,
     β_rna_sd=0.1,
     W_fac_sd=1.0,
-    z_sd=1.,
+    z_sd=.1,
     horseshoe=False,
     batch_beta=False,
     intercept=True,
@@ -227,36 +227,25 @@ def model(
             cell_indicator = torch.arange(ind.shape[0])
             
             # construct bases for each column of in D
-            W_lin = (design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1)
-            # print('======= W_fac ======', W_fac.shape)
-            # print(W_fac)
-            # print('======= normed_design ======', normed_design.shape)
-            # print(design.unsqueeze(2).unsqueeze(3))
-            # print('======= normed_design * W_fac ======')
-            # print(design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0))
-            # print('======= W_fac_red ======')
-            # print((design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1))
-            # print('======= W_fac_lin ======')
-            # print(W_lin)
-            # print('======= ind ======')
-            # print(ind)
-            # print('======= design ======')
-            # print(design_idx[ind])
+            W_lin = pyro.deterministic('W_lin', (normed_design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1))
+            W_nrm = torch.linalg.norm(W_lin, dim=2, keepdims=True)
             
-            W_vec = pyro.deterministic('W_vec', W_lin) #  / torch.linalg.norm(W_lin, dim=2, keepdims=True)
+            W_vec = pyro.deterministic('W_vec', W_lin / W_nrm)
+            z_vec = pyro.deterministic('z_vec', z * W_nrm[design_indicator].squeeze())
             
-            Wz = einsum("cf,bfp->bcp", z, W_vec)
-            # print(Wz)
+            Wz = einsum("cf,bfp->bcp", z, W_lin)
             intercept_rna = intercept_mat @ W_add
 
             μ_rna = deterministic("μ_rna", exp(X_size[ind] + intercept_rna + Wz[design_indicator, cell_indicator]))
             
             
             if Y is not None:
-                V_lin = torch.sum(normed_design.unsqueeze(2).unsqueeze(3) * V_fac.unsqueeze(0), 1)
-                V_vec = pyro.deterministic('V_vec', V_lin / torch.linalg.norm(V_lin, dim=2, keepdims=True))
+                V_lin = pyro.deterministic('V_lin', (normed_design.unsqueeze(2).unsqueeze(3) * V_fac.unsqueeze(0)).sum(1))
+                V_nrm = torch.linalg.norm(V_lin, dim=2, keepdims=True)
                 
-                Vz = einsum("cf,bfp->bcp", z, V_vec)                        
+                V_vec = pyro.deterministic('V_vec', V_lin / V_nrm)
+                
+                Vz = einsum("cf,bfp->bcp", z, V_lin)                        
                 intercept_prot = intercept_mat @ V_add
 
                 μ_prot = deterministic(

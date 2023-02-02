@@ -1,4 +1,4 @@
-from typing import Callable, List, Union
+from typing import List, Union
 
 import matplotlib.cm as cm
 import matplotlib.colors as co
