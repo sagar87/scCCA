@@ -1,10 +1,11 @@
 from collections import OrderedDict, namedtuple
 
 import numpy as np
+import pandas as pd
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
-StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index")
+StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states")
 
 
 def get_states(design: DesignMatrix) -> namedtuple:
@@ -28,6 +29,8 @@ def get_states(design: DesignMatrix) -> namedtuple:
         combinations[idx] = unique_rows[row], j
 
     factor_cols = {v: k for k, v, in design.design_info.column_name_indexes.items()}
+    state_cols = {v: k for k, v in factor_cols.items()}
+    # print(factor_cols)
 
     state_mapping = {}
     reverse_mapping = {}
@@ -39,7 +42,7 @@ def get_states(design: DesignMatrix) -> namedtuple:
         state_mapping[state] = v[1]
         reverse_mapping[v[1]] = state
 
-    return StateMapping(state_mapping, reverse_mapping, unique_rows, inverse_rows)
+    return StateMapping(state_mapping, reverse_mapping, unique_rows, inverse_rows, factor_cols, state_cols)
 
 
 def get_state_loadings(adata, model_key: str) -> dict:
@@ -76,3 +79,40 @@ def get_formula(adata, formula):
         batch = dmatrix(formula, adata.obs)
 
     return batch
+
+
+def get_diff_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
+    model_dict = adata.uns[model_key]
+    model_design = model_dict["design"]
+    state_a = model_design[state[0]]
+    state_b = model_design[state[1]]
+
+    # diff_factor = sign * (model_dict[vector][state_b][factor] - model_dict[vector][state_a][factor])
+    diff_factor = sign * (
+        adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
+        - adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
+    )
+    order = np.argsort(diff_factor)
+
+    if highest == 0:
+        gene_idx = order[:lowest]
+    else:
+        gene_idx = np.concatenate([order[:lowest], order[-highest:]])
+
+    magnitude = np.abs(diff_factor[gene_idx])
+    genes = adata.var_names.to_numpy()[gene_idx]
+
+    return (
+        pd.DataFrame(
+            {
+                "gene": genes,
+                "magnitude": magnitude,
+                "diff": diff_factor[gene_idx],
+                "type": ["lowest"] * lowest + ["highest"] * highest,
+                "state": state[1] + "-" + state[0],
+                "factor": factor,
+            }
+        )
+        .sort_values(by="diff", ascending=ascending)
+        .reset_index(drop=True)
+    )

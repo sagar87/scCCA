@@ -7,7 +7,7 @@ from torch.types import Device
 
 from .pca import scPCA
 from .train import SUBSAMPLE
-from .utils import get_protein_counts, get_rna_counts, get_states
+from .utils import get_protein_counts, get_rna_counts
 
 
 class scCCA(scPCA):
@@ -99,6 +99,7 @@ class scCCA(scPCA):
         idx = np.arange(num_cells)
 
         data = dict(
+            num_factors=self.num_factors,
             X=X,
             X_size=X_size,
             Y=Y,
@@ -115,66 +116,83 @@ class scCCA(scPCA):
         )
         return self._to_torch(data)
 
+    def posterior_to_anndata(self, model_key=None, num_samples=25):
+        _ = self._meta_to_anndata(model_key, num_samples)
+        adata = self.adata
+
+        adata.varm[f"{model_key}_W_rna"] = (
+            self.handler.predict_global_variable("W_lin", num_samples=num_samples).T.swapaxes(-1, -3).swapaxes(-1, -2)
+        )
+        adata.varm[f"{model_key}_V_rna"] = self.handler.predict_global_variable(
+            "W_add", num_samples=num_samples
+        ).T.swapaxes(-1, -2)
+
+        α_rna = self.handler.predict_global_variable("α_rna", num_samples=num_samples).T
+
+        if α_rna.ndim == 2:
+            α_rna = np.expand_dims(α_rna, 1)
+
+        adata.varm[f"{model_key}_α_rna"] = α_rna.swapaxes(-1, -2)
+
+        σ_rna = self.handler.predict_global_variable("σ_rna", num_samples=num_samples).T
+
+        if σ_rna.ndim == 2:
+            σ_rna = np.expand_dims(σ_rna, 1)
+
+        adata.varm[f"{model_key}_σ_rna"] = σ_rna.swapaxes(-1, -2)
+
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).swapaxes(0, 1)
+
+    def mean_to_anndata(self, model_key=None, num_samples=25):
+        _ = self._meta_to_anndata(model_key, num_samples)
+        adata = self.adata
+
+        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(
+            0
+        )
+        adata.obsm[f"{model_key}_μ_prot"] = self.handler.predict_local_variable("μ_prot", num_samples=num_samples).mean(
+            0
+        )
+
+        adata.layers[f"{model_key}_offset_rna"] = self.handler.predict_local_variable(
+            "offset_rna", num_samples=num_samples
+        ).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
+        adata.varm[f"{model_key}_W_rna"] = (
+            self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0).T
+        )
+        adata.varm[f"{model_key}_V_rna"] = (
+            self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0).T
+        )
+        adata.varm[f"{model_key}_α_rna"] = self.handler.predict_global_variable("α_rna").mean(0).T
+        adata.varm[f"{model_key}_σ_rna"] = self.handler.predict_global_variable("σ_rna").mean(0).T
+
     def to_anndata(self, adata=None, model_key=None, num_samples=25):
-        if model_key is None:
-            model_key = self.model_key
+        model_key = self.model_key if model_key is None else model_key
+        adata = self.adata if adata is None else adata
 
-        if adata is None:
-            adata = self.adata
-
-        # set up unstructured metadata
         adata.uns[f"{model_key}"] = {}
-        adata.uns[f"{model_key}"]["posterior"] = {
-            "μ_rna": self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0),
-            "μ_prot": self.handler.predict_local_variable("μ_prot", num_samples=num_samples).mean(0),
-            "α_rna": self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0),
-            "α_prot": self.handler.predict_global_variable("α_prot", num_samples=num_samples).mean(0),
-            "V_prot": self.handler.predict_global_variable("V_fac", num_samples=num_samples).mean(0).T,
-        }
+        res = adata.uns[f"{model_key}"]
 
-        W_fac = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0)
-        W_add = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
+        res["design"] = self.design_states.mapping
+        res["intercept"] = self.batch_states.mapping
+        res["model"] = {"num_factors": self.num_factors, **self.model_kwargs}
 
-        V_fac = self.handler.predict_global_variable("V_fac", num_samples=num_samples).mean(0)
-        V_add = self.handler.predict_global_variable("V_add", num_samples=num_samples).mean(0)
+        res["α_rna"] = self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0)
+        res["α_prot"] = self.handler.predict_global_variable("α_prot", num_samples=num_samples).mean(0)
 
-        adata.uns[f"{model_key}"]["design"] = get_states(self.design_matrix)
-        adata.uns[f"{model_key}"]["model"] = self.model_kwargs
+        res["W_fac"] = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0)
+        res["W_vec"] = self.handler.predict_global_variable("W_vec", num_samples=num_samples).mean(0)
+        res["W_lin"] = self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0)
+        res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
 
-        adata.uns[f"{model_key}"]["W_fac"] = {}
-        adata.uns[f"{model_key}"]["W_add"] = {}
-        adata.uns[f"{model_key}"]["V_fac"] = {}
-        adata.uns[f"{model_key}"]["V_add"] = {}
-        adata.uns[f"{model_key}"]["W_vec"] = {}
-        adata.uns[f"{model_key}"]["W_scale"] = {}
-        adata.uns[f"{model_key}"]["W_unit"] = {}
-        adata.uns[f"{model_key}"]["V_vec"] = {}
-        adata.uns[f"{model_key}"]["V_scale"] = {}
-        adata.uns[f"{model_key}"]["V_unit"] = {}
+        res["V_fac"] = self.handler.predict_global_variable("V_fac", num_samples=num_samples).mean(0)
+        res["V_vec"] = self.handler.predict_global_variable("V_vec", num_samples=num_samples).mean(0)
+        res["V_lin"] = self.handler.predict_global_variable("V_lin", num_samples=num_samples).mean(0)
+        res["V_add"] = self.handler.predict_global_variable("V_add", num_samples=num_samples).mean(0)
 
-        for i, (k, v) in enumerate(adata.uns[f"{model_key}"]["design"].items()):
-            adata.uns[f"{model_key}"]["W_fac"][k] = W_fac[v[-1]]
-            adata.uns[f"{model_key}"]["W_vec"][k] = W_fac[v].sum(axis=0)
-            adata.uns[f"{model_key}"]["W_scale"][k] = np.linalg.norm(W_fac[v].sum(axis=0), ord=2, axis=1, keepdims=True)
-            adata.uns[f"{model_key}"]["W_unit"][k] = W_fac[v].sum(axis=0) / np.linalg.norm(
-                W_fac[v].sum(axis=0), ord=2, axis=1, keepdims=True
-            )
-
-            adata.uns[f"{model_key}"]["V_fac"][k] = V_fac[v[-1]]
-            adata.uns[f"{model_key}"]["V_vec"][k] = V_fac[v].sum(axis=0)
-            adata.uns[f"{model_key}"]["V_scale"][k] = np.linalg.norm(V_fac[v].sum(axis=0), ord=2, axis=1, keepdims=True)
-            adata.uns[f"{model_key}"]["V_unit"][k] = V_fac[v].sum(axis=0) / np.linalg.norm(
-                V_fac[v].sum(axis=0), ord=2, axis=1, keepdims=True
-            )
-
-        for k, v in get_states(self.batch_matrix).items():
-            adata.uns[f"{model_key}"]["W_add"][k] = W_add[v[-1]]
-            adata.uns[f"{model_key}"]["V_add"][k] = V_add[v[-1]]
-
-        adata.uns[f"{model_key}"]["design"] = get_states(self.design_matrix)
-        # adata.uns[f"{model_key}"]["batch"] = get_states(self.batch)
-        adata.uns[f"{model_key}"]["model"] = self.model_kwargs
+        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0)
+        res["μ_prot"] = self.handler.predict_local_variable("μ_prot", num_samples=num_samples).mean(0)
 
         adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
-
-        adata.varm[f"{model_key}"] = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0).T
+        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples).mean(0)

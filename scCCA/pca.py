@@ -109,6 +109,7 @@ class scPCA(object):
         idx = np.arange(num_cells)
 
         data = dict(
+            num_factors=self.num_factors,
             X=X,
             X_size=X_size,
             Y=None,
@@ -131,7 +132,6 @@ class scPCA(object):
         """
         train_model = partial(
             model,
-            num_factors=self.num_factors,
             subsampling=self.subsampling,
             minibatches=False,
             device=self.device,
@@ -141,7 +141,6 @@ class scPCA(object):
 
         train_guide = partial(
             guide,
-            num_factors=self.num_factors,
             subsampling=self.subsampling,
             minibatches=False,
             device=self.device,
@@ -153,7 +152,6 @@ class scPCA(object):
 
         predict_model = partial(
             model,
-            num_factors=self.num_factors,
             subsampling=0,
             minibatches=True,
             device=self.device,
@@ -163,7 +161,6 @@ class scPCA(object):
 
         predict_guide = partial(
             guide,
-            num_factors=self.num_factors,
             subsampling=0,
             minibatches=True,
             device=self.device,
@@ -183,26 +180,80 @@ class scPCA(object):
     def fit(self, *args, **kwargs):
         self.handler.fit(*args, **kwargs)
 
-    def to_anndata(self, adata=None, model_key=None, num_samples=25):
-        if model_key is None:
-            model_key = self.model_key
-
-        if adata is None:
-            adata = self.adata
+    def _meta_to_anndata(self, model_key=None, num_samples=25):
+        model_key = self.model_key if model_key is None else model_key
+        adata = self.adata
 
         adata.uns[f"{model_key}"] = {}
         res = adata.uns[f"{model_key}"]
+        res["design"] = {
+            **{str(k): v for k, v in self.design_states.columns.items()},
+            **{str(k): v for k, v in self.design_states.states.items()},
+        }
+        res["intercept"] = {
+            **{str(k): v for k, v in self.batch_states.columns.items()},
+            **{str(k): v for k, v in self.batch_states.states.items()},
+        }
+        res["loss"] = self.handler.loss
+        res["model"] = {"num_factors": self.num_factors, **self.model_kwargs}
 
-        res["design"] = self.design_states.mapping
-        res["intercept"] = self.batch_states.mapping
-        res["model"] = self.model_kwargs
+        return res
 
+    def posterior_to_anndata(self, model_key=None, num_samples=25):
+        _ = self._meta_to_anndata(model_key, num_samples)
+        adata = self.adata
+
+        adata.varm[f"{model_key}_W_rna"] = (
+            self.handler.predict_global_variable("W_lin", num_samples=num_samples).T.swapaxes(-1, -3).swapaxes(-1, -2)
+        )
+        adata.varm[f"{model_key}_V_rna"] = self.handler.predict_global_variable(
+            "W_add", num_samples=num_samples
+        ).T.swapaxes(-1, -2)
+
+        α_rna = self.handler.predict_global_variable("α_rna", num_samples=num_samples).T
+
+        if α_rna.ndim == 2:
+            α_rna = np.expand_dims(α_rna, 1)
+
+        adata.varm[f"{model_key}_α_rna"] = α_rna.swapaxes(-1, -2)
+
+        σ_rna = self.handler.predict_global_variable("σ_rna", num_samples=num_samples).T
+
+        if σ_rna.ndim == 2:
+            σ_rna = np.expand_dims(σ_rna, 1)
+
+        adata.varm[f"{model_key}_σ_rna"] = σ_rna.swapaxes(-1, -2)
+
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).swapaxes(0, 1)
+
+    def mean_to_anndata(self, model_key=None, num_samples=25):
+        _ = self._meta_to_anndata(model_key, num_samples)
+        adata = self.adata
+
+        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(
+            0
+        )
+        adata.layers[f"{model_key}_offset_rna"] = self.handler.predict_local_variable(
+            "offset_rna", num_samples=num_samples
+        ).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
+        adata.varm[f"{model_key}_W_rna"] = (
+            self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0).T
+        )
+        adata.varm[f"{model_key}_V_rna"] = (
+            self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0).T
+        )
+        adata.varm[f"{model_key}_α_rna"] = self.handler.predict_global_variable("α_rna").mean(0).T
+        adata.varm[f"{model_key}_σ_rna"] = self.handler.predict_global_variable("σ_rna").mean(0).T
+
+    def to_anndata(self, model_key=None, num_samples=25):
+        res = self._meta_to_anndata(model_key, num_samples)
+        adata = self.adata
         res["α_rna"] = self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0)
         res["W_fac"] = self.handler.predict_global_variable("W_fac", num_samples=num_samples).mean(0)
         res["W_vec"] = self.handler.predict_global_variable("W_vec", num_samples=num_samples).mean(0)
         res["W_lin"] = self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0)
         res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
-        res["z_vec"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples).mean(0)
 
         res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0)
         adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)

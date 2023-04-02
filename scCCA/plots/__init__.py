@@ -1,7 +1,7 @@
 from .factor_embedding import factor_embedding
 from .loadings_bar import loading_bar
-from .loadings_scatter import loadings_scatter, loadings_scatter_highlight
-from .qc import disp, qc_hist
+from .loadings_scatter import loadings_scatter
+from .qc import disp, mean_var, qc_hist
 
 __all__ = [
     "disp",
@@ -9,5 +9,5 @@ __all__ = [
     "factor_embedding",
     "loading_bar",
     "loadings_scatter",
-    "loadings_scatter_highlight",
+    "mean_var",
 ]

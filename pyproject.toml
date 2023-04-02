@@ -16,6 +16,7 @@ sphinx-rtd-theme = { version = "1.0.0", optional = true }
 sphinxcontrib-napoleon = { version = "0.7", optional = true }
 nbsphinx = { version = "0.8.9", optional = true }
 jupyter = {version = "*", optional = true}
+adjusttext = "^0.7.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.2.0"

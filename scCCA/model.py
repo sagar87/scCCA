@@ -33,7 +33,7 @@ def model(
     device,
     subsampling=0,
     β_rna_mean=3.0,
-    β_rna_sd=0.1,
+    β_rna_sd=0.01,
     W_fac_sd=1.0,
     z_sd=.1,
     horseshoe=False,
@@ -235,8 +235,9 @@ def model(
             
             Wz = einsum("cf,bfp->bcp", z, W_lin)
             intercept_rna = intercept_mat @ W_add
+            offset_rna = pyro.deterministic('offset_rna', X_size[ind] + intercept_rna)
 
-            μ_rna = deterministic("μ_rna", exp(X_size[ind] + intercept_rna + Wz[design_indicator, cell_indicator]))
+            μ_rna = deterministic("μ_rna", exp(offset_rna + Wz[design_indicator, cell_indicator]))
             
             
             if Y is not None:
@@ -247,20 +248,24 @@ def model(
                 
                 Vz = einsum("cf,bfp->bcp", z, V_lin)                        
                 intercept_prot = intercept_mat @ V_add
+                offset_prot = pyro.deterministic('offset_prot', Y_size[ind] + intercept_prot)
 
                 μ_prot = deterministic(
-                    "μ_prot", exp(Y_size[ind] + intercept_prot + Vz[design_indicator, cell_indicator])
+                    "μ_prot", exp(offset_prot + Vz[design_indicator, cell_indicator])
                 )
 
             if batch_beta:
-                α_rna_bat = intercept_mat @ α_rna
+                α_rna_bat = intercept_mat @ α_rna 
+                
                 if Y is not None:
-                    α_prot_bat = intercept_mat @ α_prot
+                    α_prot_bat = intercept_mat @ α_prot 
             else:
                 α_rna_bat = α_rna
 
                 if Y is not None:
                     α_prot_bat = α_prot
+                    
+            deterministic('σ_rna',  μ_rna ** 2 / α_rna_bat  * (1 + α_rna_bat / μ_rna))
 
             sample(
                 "rna",
@@ -268,6 +273,7 @@ def model(
                 obs=X[ind],
             )
             if Y is not None:
+                deterministic('σ_prot', μ_prot ** 2 / α_prot_bat * (1 + α_prot_bat / μ_prot))
                 sample(
                     "prot",
                     GammaPoisson(α_prot_bat, α_prot_bat / μ_prot).to_event(1),

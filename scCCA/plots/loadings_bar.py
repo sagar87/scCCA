@@ -1,12 +1,11 @@
 from typing import List, Union
 
 import matplotlib.cm as cm
-import matplotlib.colors as co
 import matplotlib.patheffects as PathEffects
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .utils import set_up_plot
+from .utils import set_up_cmap, set_up_plot
 
 
 def loading_bar(
@@ -14,7 +13,7 @@ def loading_bar(
     model_key: str,
     state: str,
     factor: Union[int, List[int], None] = None,
-    vector: str = "W_vec",
+    vector: str = "W_rna",
     design_dim=0,
     sign=1,
     lowest=4,
@@ -83,7 +82,7 @@ def loading_bar(
         fontsize=fontsize,
         cmap=cmap,
         annot_bottom=annot_bottom,
-        ax=None,
+        ax=ax,
     )
     return ax
 
@@ -92,8 +91,8 @@ def _loadings_bar(
     adata,
     model_key: str,
     factor: int,
-    state: str,
-    vector: str = "W_vec",
+    state: Union[str, List[str]],
+    vector: str = "W_rna",
     design_dim=0,
     sign=1,
     lowest=4,
@@ -106,11 +105,26 @@ def _loadings_bar(
     annot_bottom=False,
     ax=None,
 ):
+    model_dict = adata.uns[model_key]
+    if isinstance(state, str):
+        idx = model_dict["design"][state]
+        # loadings = sign * model_dict[vector][idx][factor]
+        loadings = sign * adata.varm[f"{model_key}_{vector}"][..., factor, idx]
+    else:
+        model_design = model_dict["design"]
+        state_a = model_design[state[0]]
+        state_b = model_design[state[1]]
 
-    loadings = sign * adata.uns[model_key][vector][state][factor]
+        # loadings = sign * (model_dict[vector][state_b][factor] - model_dict[vector][state_a][factor])
+        loadings = sign * (
+            adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
+            - adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
+        )
+
     y = loadings
     other = len(loadings) - (lowest + highest)
     loadings_idx = np.argsort(loadings)
+
     w = np.concatenate(
         [
             np.ones(lowest) * fat_bar,
@@ -119,17 +133,7 @@ def _loadings_bar(
         ]
     )
 
-    vmin = loadings.min()
-    vmax = loadings.max()
-    if vmin < 0 and vmax > 0:
-        norm = co.TwoSlopeNorm(vmin=vmin, vmax=vmax, vcenter=0)
-    elif vmin < 0 and vmax < 0:
-        norm = co.Normalize(vmin=vmin, vmax=0)
-        cmap = co.LinearSegmentedColormap.from_list("name", [cmap(0), "w"])
-    else:
-        cmap = co.LinearSegmentedColormap.from_list("name", ["w", cmap(1)])
-        norm = co.Normalize(vmin=0, vmax=vmax)
-
+    cmap, norm = set_up_cmap(loadings, cmap)
     mapper = cm.ScalarMappable(norm=norm, cmap=cmap)
 
     colors = [mapper.to_rgba(v) for v in y[loadings_idx]]

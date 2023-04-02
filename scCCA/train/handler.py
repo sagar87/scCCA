@@ -75,6 +75,8 @@ class SVIBaseHandler:
         self.steps = 0
 
     def _update_state(self, loss):
+        if isinstance(loss, list):
+            loss = np.asarray(loss)
         self.loss = loss if self.loss is None else np.concatenate([self.loss, loss])
 
     def _to_numpy(self, posterior):
