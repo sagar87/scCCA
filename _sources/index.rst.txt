@@ -18,6 +18,7 @@ Welcome to scCCA's documentation!
    :caption: Tutorials:
    
    notebooks/PBMC5K
+   notebooks/kang
 
 Indices and tables
 ==================
