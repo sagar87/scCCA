@@ -75,7 +75,11 @@ def set_up_plot(
             fig, ax = plt.subplots(1, 1)
     else:
         model_dict = adata.uns[model_key]
-        num_plots = model_dict["model"]["num_factors"]
+        if model_key == "pca":
+            num_plots = model_dict["variance"].shape[0]
+        else:
+            num_plots = model_dict["model"]["num_factors"]
+
         instances = [i for i in range(num_plots)]
         fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height)
 
