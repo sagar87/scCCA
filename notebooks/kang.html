@@ -366,6 +366,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<p><a class="reference external" href="https://colab.research.google.com/github/sagar87/scCCA/blob/main/docs/notebooks/kang.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
@@ -491,7 +492,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_13_1.png" src="../_images/notebooks_kang_13_1.png" />
+<img alt="../_images/notebooks_kang_14_1.png" src="../_images/notebooks_kang_14_1.png" />
 </div>
 </div>
 <p>To understand why, we proceed by investigating the PCA factors. In particular, we plot the factor weights of the first few principal components using the <code class="docutils literal notranslate"><span class="pre">scc.pl.factor_embedding</span></code> function on top of the UMAP coordinates. Visual inspection indicates that the first factor (<code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">0</span></code>) is likely to represent an axis of variation that delineates CD14+/FCGR3A+ monocytes and dendritic cells from all other cell types within the dataset. The second principal component (<code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">1</span></code>) however seems to
@@ -509,7 +510,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_15_0.png" src="../_images/notebooks_kang_15_0.png" />
+<img alt="../_images/notebooks_kang_16_0.png" src="../_images/notebooks_kang_16_0.png" />
 </div>
 </div>
 <p>While the separation of cells across conditions is expected, it poses potential problems for further downstream analyses. Clustering by cell type, for example, is difficult due to the presence of <code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">1</span></code> which separates same cell types by condition. For this reason, it is desirebable to account for the experimental condition while performing the dimensionality reduction. In <code class="docutils literal notranslate"><span class="pre">scPCA</span></code>, we inform the model about the experimental condition of each cell by employing design matrices. To
@@ -662,7 +663,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_28_1.png" src="../_images/notebooks_kang_28_1.png" />
+<img alt="../_images/notebooks_kang_29_1.png" src="../_images/notebooks_kang_29_1.png" />
 </div>
 </div>
 <p>We find that the UMAP plot from <code class="docutils literal notranslate"><span class="pre">scPCA</span></code> cell embedding looks similar to the one which was based on PCA. We again look at the fitted factors<span class="math notranslate nohighlight">\(^1\)</span> to obtain a better understanding about the captured “principal axis” of variation<span class="math notranslate nohighlight">\(^2\)</span>. Similar to PCA, we find a factor that seemingly delineates monocytes and dendritic cells from all other cells (<code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">10</span></code>). The model also captured factors that explain differences between the control and stimulated condition (<code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">0</span></code>,
@@ -682,7 +683,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_30_0.png" src="../_images/notebooks_kang_30_0.png" />
+<img alt="../_images/notebooks_kang_31_0.png" src="../_images/notebooks_kang_31_0.png" />
 </div>
 </div>
 </section>
@@ -711,7 +712,7 @@ sns.despine()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_33_0.png" src="../_images/notebooks_kang_33_0.png" />
+<img alt="../_images/notebooks_kang_34_0.png" src="../_images/notebooks_kang_34_0.png" />
 </div>
 </div>
 <p>We find that cells from the stimulated condition tend to have a larger number of counts. To instruct the model to fit different means for both conditions, we consider the intercept design matrix <span class="math notranslate nohighlight">\(B_2\)</span> which we may create by using the R-style formula <code class="docutils literal notranslate"><span class="pre">label-1</span></code> (see also <a class="reference external" href="https://patsy.readthedocs.io/en/latest/">https://patsy.readthedocs.io/en/latest/</a>).</p>
@@ -824,7 +825,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_42_1.png" src="../_images/notebooks_kang_42_1.png" />
+<img alt="../_images/notebooks_kang_43_1.png" src="../_images/notebooks_kang_43_1.png" />
 </div>
 </div>
 <p>Strikingly, we observe that accounting for mean expression across coditions improves mixing across conditions substantially whilst preserving the identity of cells. Inspection of factors reveals the absence of a factor that clearly delineates the experimental condition.</p>
@@ -841,7 +842,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_44_0.png" src="../_images/notebooks_kang_44_0.png" />
+<img alt="../_images/notebooks_kang_45_0.png" src="../_images/notebooks_kang_45_0.png" />
 </div>
 </div>
 </section>
@@ -959,7 +960,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_54_1.png" src="../_images/notebooks_kang_54_1.png" />
+<img alt="../_images/notebooks_kang_55_1.png" src="../_images/notebooks_kang_55_1.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -975,7 +976,7 @@ plt.tight_layout()
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_55_0.png" src="../_images/notebooks_kang_55_0.png" />
+<img alt="../_images/notebooks_kang_56_0.png" src="../_images/notebooks_kang_56_0.png" />
 </div>
 </div>
 <p>Inspecting the factors suggests that <code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">8</span></code> constitutes particular large negative factor weights in CD14+ monocytes. To understand how the expression spectrum along this factor changed, we investigate loading weights of factor 8. These represent expression shifts relative to the mean expression in the corresponding condition condition. We may visualize these shifts using the <code class="docutils literal notranslate"><span class="pre">scc.pl.loadings_scatter</span></code> function which takes as an input the <code class="docutils literal notranslate"><span class="pre">anndata</span></code> object containing the model parameters
@@ -1015,7 +1016,7 @@ Text(30.972222222222214, 0.5, &#39;Loading weight&#39;)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_57_1.png" src="../_images/notebooks_kang_57_1.png" />
+<img alt="../_images/notebooks_kang_58_1.png" src="../_images/notebooks_kang_58_1.png" />
 </div>
 </div>
 <p>Likewise we can investigate the downregulated genes by setting <code class="docutils literal notranslate"><span class="pre">lowest</span></code> to greater than 1.</p>
@@ -1052,7 +1053,7 @@ Text(30.972222222222214, 0.5, &#39;Loading weight&#39;)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_kang_59_1.png" src="../_images/notebooks_kang_59_1.png" />
+<img alt="../_images/notebooks_kang_60_1.png" src="../_images/notebooks_kang_60_1.png" />
 </div>
 </div>
 </section>
