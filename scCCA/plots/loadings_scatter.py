@@ -119,16 +119,19 @@ def loadings_scatter(
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
+        
+    if isinstance(show_labels, int):
+        show_labels = [ show_labels ]
 
     states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale, cmap)
-
+    model_dict = adata.uns[model_key]
+    model_design = model_dict["design"]
+        
     if len(genes) > 0:
         gene_bool = adata.var_names.isin(genes)
         coords = np.zeros((len(states), len(genes), 2))
 
-    if len(diff) > 0:
-        model_dict = adata.uns[model_key]
-        model_design = model_dict["design"]
+    elif len(diff) > 0:
         state_a = model_design[diff[0]]
         state_b = model_design[diff[1]]
 
@@ -145,12 +148,14 @@ def loadings_scatter(
             gene_idx = np.concatenate([order[:lowest], order[-highest:]])
 
         # magnitude = np.abs(diff_factor[gene_idx])
-        genes = adata.var_names.to_numpy()[gene_idx]
-        gene_bool = adata.var_names.isin(genes)
-        coords = np.zeros((len(states), len(genes), 2))
+        diff_genes = adata.var_names.to_numpy()[gene_idx]
+        gene_bool = adata.var_names.isin(diff_genes)
+        coords = np.zeros((len(states), len(diff_genes), 2))
 
         if plot_diff:
-            genes = np.array([f"{gene} {diff:.2f}" for gene, diff in zip(genes, diff_factor[gene_idx])])
+            diff_genes = np.array([f"{gene} {diff:.2f}" for gene, diff in zip(diff_genes, diff_factor[gene_idx])])
+    else:
+        diff_genes = []
 
     for i, state in states_data.items():
         ax.scatter(
@@ -162,7 +167,7 @@ def loadings_scatter(
             zorder=1,
         )
 
-        if len(genes) > 0:
+        if len(diff_genes) > 0:
             # print(state['c'])
             ax.scatter(
                 state["x"][gene_bool],
@@ -176,30 +181,38 @@ def loadings_scatter(
             coords[i, :, 0] = state["x"][gene_bool]
             coords[i, :, 1] = state["y"][gene_bool]
 
-            if i == show_labels:
-                texts = _annotate_genes(ax, state["x"][gene_idx], state["y"][gene_idx], genes, fontsize=fontsize)
-                adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
+            if i in show_labels:
+                texts = _annotate_genes(ax, state["x"][gene_idx], state["y"][gene_idx], diff_genes, fontsize=fontsize)
+                # adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
             # gene_list = adata.var_names[gene_bool].tolist()
         else:
-            # mark lowest genes
-            lowest_names = adata.var_names[state["o"]].values[:lowest].tolist()
-            lowest_x = state["xo"][:lowest].tolist()
-            lowest_y = state["yo"][:lowest].tolist()
+            # mark lowest diff_genes
+            if i in show_labels:
+                order = state["o"]
+                texts = []
+                if lowest != 0:
+                    lowest_names = adata.var_names[order].values[:lowest].tolist()
+                    lowest_x = state["xo"][:lowest].tolist()
+                    lowest_y = state["yo"][:lowest].tolist()
 
-            texts = _annotate_genes(ax, lowest_x, lowest_y, lowest_names, fontsize=fontsize)
+                    texts += _annotate_genes(ax, lowest_x, lowest_y, lowest_names, fontsize=fontsize)
+                
 
-            # mark highest genes
-            highest_names = adata.var_names[state["o"]].values[-highest:].tolist()
-            highest_x = state["xo"][-highest:].tolist()
-            highest_y = state["yo"][-highest:].tolist()
+                # mark highest diff_genes
+                if highest != 0:
+                    highest_names = adata.var_names[order].values[-highest:].tolist()
+                    highest_x = state["xo"][-highest:].tolist()
+                    highest_y = state["yo"][-highest:].tolist()
+                    
+                    texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
+                    
+    if len(texts) > 0:
+        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
-            texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
-            adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
-
-    if len(genes) > 0 or len(diff) > 0:
+    if len(diff) > 0 or len(diff_genes) > 0:
         for j in range(len(states) - 1):
-            for g in range(len(genes)):
+            for g in range(len(diff_genes)):
                 ax.plot(
                     [coords[j, g, 0], coords[j + 1, g, 0]],
                     [coords[j, g, 1], coords[j + 1, g, 1]],
