@@ -119,14 +119,14 @@ def loadings_scatter(
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
-        
+
     if isinstance(show_labels, int):
-        show_labels = [ show_labels ]
+        show_labels = [show_labels]
 
     states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale, cmap)
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
-        
+
     if len(genes) > 0:
         gene_bool = adata.var_names.isin(genes)
         coords = np.zeros((len(states), len(genes), 2))
@@ -197,16 +197,15 @@ def loadings_scatter(
                     lowest_y = state["yo"][:lowest].tolist()
 
                     texts += _annotate_genes(ax, lowest_x, lowest_y, lowest_names, fontsize=fontsize)
-                
 
                 # mark highest diff_genes
                 if highest != 0:
                     highest_names = adata.var_names[order].values[-highest:].tolist()
                     highest_x = state["xo"][-highest:].tolist()
                     highest_y = state["yo"][-highest:].tolist()
-                    
+
                     texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
-                    
+
     if len(texts) > 0:
         adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
