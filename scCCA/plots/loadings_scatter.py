@@ -157,6 +157,7 @@ def loadings_scatter(
     else:
         diff_genes = []
 
+    texts = []
     for i, state in states_data.items():
         ax.scatter(
             state["x"],
@@ -182,7 +183,7 @@ def loadings_scatter(
             coords[i, :, 1] = state["y"][gene_bool]
 
             if i in show_labels:
-                texts = _annotate_genes(ax, state["x"][gene_idx], state["y"][gene_idx], diff_genes, fontsize=fontsize)
+                texts += _annotate_genes(ax, state["x"][gene_idx], state["y"][gene_idx], diff_genes, fontsize=fontsize)
                 # adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
             # gene_list = adata.var_names[gene_bool].tolist()
@@ -190,7 +191,7 @@ def loadings_scatter(
             # mark lowest diff_genes
             if i in show_labels:
                 order = state["o"]
-                texts = []
+
                 if lowest != 0:
                     lowest_names = adata.var_names[order].values[:lowest].tolist()
                     lowest_x = state["xo"][:lowest].tolist()
@@ -205,6 +206,8 @@ def loadings_scatter(
                     highest_y = state["yo"][-highest:].tolist()
 
                     texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
+
+    # print(texts)
 
     if len(texts) > 0:
         adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
