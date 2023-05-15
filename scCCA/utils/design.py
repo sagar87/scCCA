@@ -81,6 +81,37 @@ def get_formula(adata, formula):
     return batch
 
 
+def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
+    model_dict = adata.uns[model_key]
+    model_design = model_dict["design"]
+    state = model_design[state]
+    diff_factor = adata.varm[f"{model_key}_{vector}"][..., factor, state]
+    order = np.argsort(diff_factor)
+
+    if highest == 0:
+        gene_idx = order[:lowest]
+    else:
+        gene_idx = np.concatenate([order[:lowest], order[-highest:]])
+
+    magnitude = np.abs(diff_factor[gene_idx])
+    genes = adata.var_names.to_numpy()[gene_idx]
+
+    return (
+        pd.DataFrame(
+            {
+                "gene": genes,
+                "magnitude": magnitude,
+                "diff": diff_factor[gene_idx],
+                "type": ["lowest"] * lowest + ["highest"] * highest,
+                "state": state,
+                "factor": factor,
+            }
+        )
+        .sort_values(by="diff", ascending=ascending)
+        .reset_index(drop=True)
+    )
+
+
 def get_diff_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
