@@ -5,7 +5,7 @@ import pandas as pd
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
-StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states")
+StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states, sparse")
 
 
 def get_states(design: DesignMatrix) -> namedtuple:
@@ -24,13 +24,15 @@ def get_states(design: DesignMatrix) -> namedtuple:
     unique_rows, inverse_rows = np.unique(np.asarray(design), axis=0, return_inverse=True)
 
     combinations = OrderedDict()
+    sparse_state = {}
     for j, row in enumerate(range(unique_rows.shape[0])):
         idx = tuple(np.where(unique_rows[row] == 1)[0])
         combinations[idx] = unique_rows[row], j
+        state_name = "|".join([design.design_info.column_names[i] for i in np.where(unique_rows[row] == 1)[0]])
+        sparse_state[state_name] = j
 
     factor_cols = {v: k for k, v, in design.design_info.column_name_indexes.items()}
     state_cols = {v: k for k, v in factor_cols.items()}
-    # print(factor_cols)
 
     state_mapping = {}
     reverse_mapping = {}
@@ -42,7 +44,9 @@ def get_states(design: DesignMatrix) -> namedtuple:
         state_mapping[state] = v[1]
         reverse_mapping[v[1]] = state
 
-    return StateMapping(state_mapping, reverse_mapping, unique_rows, inverse_rows, factor_cols, state_cols)
+    return StateMapping(
+        state_mapping, reverse_mapping, unique_rows, inverse_rows, factor_cols, state_cols, sparse_state
+    )
 
 
 def get_state_loadings(adata, model_key: str) -> dict:
