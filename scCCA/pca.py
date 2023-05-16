@@ -186,10 +186,7 @@ class scPCA(object):
 
         adata.uns[f"{model_key}"] = {}
         res = adata.uns[f"{model_key}"]
-        res["design"] = {
-            **{str(k): v for k, v in self.design_states.columns.items()},
-            **{str(k): v for k, v in self.design_states.states.items()},
-        }
+        res["design"] = self.design_states.sparse
         res["intercept"] = {
             **{str(k): v for k, v in self.batch_states.columns.items()},
             **{str(k): v for k, v in self.batch_states.states.items()},
