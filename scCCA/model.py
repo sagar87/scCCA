@@ -228,6 +228,7 @@ def model(
             
             # construct bases for each column of in D
             W_lin = pyro.deterministic('W_lin', (normed_design.unsqueeze(2).unsqueeze(3) * W_fac.unsqueeze(0)).sum(1))
+            import pdb; pdb.set_trace()
             W_nrm = torch.linalg.norm(W_lin, dim=2, keepdims=True)
             
             W_vec = pyro.deterministic('W_vec', W_lin / W_nrm)
