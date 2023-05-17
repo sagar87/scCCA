@@ -17,7 +17,7 @@
     "tags": []
    },
    "source": [
-    "*In order to run this notebook in Google Colab uncomment and run the following cells. For best performance make sure that you run the notebook on a GPU instance, i.e. choose from the menu bar Runtime > Change Runtime > Hardware accelerator > GPU.*"
+    "*In order to run this notebook in Google Colab run the following cells. For best performance make sure that you run the notebook on a GPU instance, i.e. choose from the menu bar Runtime > Change Runtime > Hardware accelerator > GPU.*"
    ]
   },
   {
@@ -30,7 +30,7 @@
    "outputs": [],
    "source": [
     "# Install scCCA + depenencies\n",
-    "# !pip install --quiet scCCA "
+    "!pip install --quiet scCCA scikit-misc"
    ]
   },
   {
@@ -43,7 +43,7 @@
    "outputs": [],
    "source": [
     "# Download the Kang et. al. dataset\n",
-    "# !wget https://www.huber.embl.de/users/harald/sc/kang.h5ad /content/kang.h5ad"
+    "!wget https://www.huber.embl.de/users/harald/sc/kang.h5ad /content/kang.h5ad"
    ]
   },
   {
@@ -406,7 +406,7 @@
     }
    ],
    "source": [
-    "m0.mean_to_anndata(model_key='m0')"
+    "m0.mean_to_anndata(model_key='m0', num_split=64)"
    ]
   },
   {
@@ -701,7 +701,7 @@
     }
    ],
    "source": [
-    "m1.mean_to_anndata(model_key='m1')"
+    "m1.mean_to_anndata(model_key='m1', num_split=64)"
    ]
   },
   {
@@ -908,7 +908,7 @@
     }
    ],
    "source": [
-    "m2.mean_to_anndata(model_key='m2')"
+    "m2.mean_to_anndata(model_key='m2', num_split=64)"
    ]
   },
   {

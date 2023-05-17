@@ -358,13 +358,13 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <p><a class="reference external" href="https://colab.research.google.com/github/sagar87/scCCA/blob/main/docs/notebooks/kang.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
-<p><em>In order to run this notebook in Google Colab uncomment and run the following cells. For best performance make sure that you run the notebook on a GPU instance, i.e. choose from the menu bar Runtime &gt; Change Runtime &gt; Hardware accelerator &gt; GPU.</em></p>
+<p><em>In order to run this notebook in Google Colab run the following cells. For best performance make sure that you run the notebook on a GPU instance, i.e. choose from the menu bar Runtime &gt; Change Runtime &gt; Hardware accelerator &gt; GPU.</em></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Install scCCA + depenencies
-# !pip install --quiet scCCA
+!pip install --quiet scCCA scikit-misc
 </pre></div>
 </div>
 </div>
@@ -373,7 +373,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Download the Kang et. al. dataset
-# !wget https://www.huber.embl.de/users/harald/sc/kang.h5ad /content/kang.h5ad
+!wget https://www.huber.embl.de/users/harald/sc/kang.h5ad /content/kang.h5ad
 </pre></div>
 </div>
 </div>
@@ -589,7 +589,7 @@ Epoch: 6990 | lr: 1.00E-03 | ELBO: 7707766 | Δ_10: -99021.50 | Best: 7504334: 1
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0.mean_to_anndata(model_key=&#39;m0&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0.mean_to_anndata(model_key=&#39;m0&#39;, num_split=64)
 </pre></div>
 </div>
 </div>
@@ -782,7 +782,7 @@ Epoch: 6990 | lr: 1.00E-03 | ELBO: 7816562 | Δ_10: 8327.50 | Best: 7556992: 100
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m1.mean_to_anndata(model_key=&#39;m1&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m1.mean_to_anndata(model_key=&#39;m1&#39;, num_split=64)
 </pre></div>
 </div>
 </div>
@@ -917,7 +917,7 @@ Epoch: 6990 | lr: 1.00E-03 | ELBO: 7801074 | Δ_10: -81267.00 | Best: 7532256: 1
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m2.mean_to_anndata(model_key=&#39;m2&#39;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m2.mean_to_anndata(model_key=&#39;m2&#39;, num_split=64)
 </pre></div>
 </div>
 </div>
