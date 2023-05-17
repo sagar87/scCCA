@@ -223,17 +223,17 @@ class scPCA(object):
 
         adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).swapaxes(0, 1)
 
-    def mean_to_anndata(self, model_key=None, num_samples=25):
+    def mean_to_anndata(self, model_key=None, num_samples=25, num_split=2048):
         _ = self._meta_to_anndata(model_key, num_samples)
         adata = self.adata
 
-        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(
+        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples, num_split=num_split).mean(
             0
         )
         adata.layers[f"{model_key}_offset_rna"] = self.handler.predict_local_variable(
-            "offset_rna", num_samples=num_samples
+            "offset_rna", num_samples=num_samples, num_split=num_split
         ).mean(0)
-        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples, num_split=num_split).mean(0)
         adata.varm[f"{model_key}_W_rna"] = (
             self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0).T
         )
@@ -243,7 +243,7 @@ class scPCA(object):
         adata.varm[f"{model_key}_α_rna"] = self.handler.predict_global_variable("α_rna").mean(0).T
         adata.varm[f"{model_key}_σ_rna"] = self.handler.predict_global_variable("σ_rna").mean(0).T
 
-    def to_anndata(self, model_key=None, num_samples=25):
+    def to_anndata(self, model_key=None, num_samples=25, num_split=2048):
         res = self._meta_to_anndata(model_key, num_samples)
         adata = self.adata
         res["α_rna"] = self.handler.predict_global_variable("α_rna", num_samples=num_samples).mean(0)
@@ -252,6 +252,6 @@ class scPCA(object):
         res["W_lin"] = self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0)
         res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
 
-        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples).mean(0)
-        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples).mean(0)
-        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples).mean(0)
+        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples, num_split=num_split).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples, num_split=num_split).mean(0)
+        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples, num_split=num_split).mean(0)
