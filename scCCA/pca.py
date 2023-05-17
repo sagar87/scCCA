@@ -227,13 +227,15 @@ class scPCA(object):
         _ = self._meta_to_anndata(model_key, num_samples)
         adata = self.adata
 
-        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples, num_split=num_split).mean(
-            0
-        )
+        adata.layers[f"{model_key}_μ_rna"] = self.handler.predict_local_variable(
+            "μ_rna", num_samples=num_samples, num_split=num_split
+        ).mean(0)
         adata.layers[f"{model_key}_offset_rna"] = self.handler.predict_local_variable(
             "offset_rna", num_samples=num_samples, num_split=num_split
         ).mean(0)
-        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples, num_split=num_split).mean(0)
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable(
+            "z", num_samples=num_samples, num_split=num_split
+        ).mean(0)
         adata.varm[f"{model_key}_W_rna"] = (
             self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0).T
         )
@@ -252,6 +254,12 @@ class scPCA(object):
         res["W_lin"] = self.handler.predict_global_variable("W_lin", num_samples=num_samples).mean(0)
         res["W_add"] = self.handler.predict_global_variable("W_add", num_samples=num_samples).mean(0)
 
-        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples, num_split=num_split).mean(0)
-        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable("z", num_samples=num_samples, num_split=num_split).mean(0)
-        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable("z_vec", num_samples=num_samples, num_split=num_split).mean(0)
+        res["μ_rna"] = self.handler.predict_local_variable("μ_rna", num_samples=num_samples, num_split=num_split).mean(
+            0
+        )
+        adata.obsm[f"X_{model_key}"] = self.handler.predict_local_variable(
+            "z", num_samples=num_samples, num_split=num_split
+        ).mean(0)
+        adata.obsm[f"Z_{model_key}"] = self.handler.predict_local_variable(
+            "z_vec", num_samples=num_samples, num_split=num_split
+        ).mean(0)
