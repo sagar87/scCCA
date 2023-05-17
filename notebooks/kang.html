@@ -584,12 +584,13 @@ Epoch: 4990 | lr: 1.00E-02 | ELBO: 7847740 | Δ_10: -20655.50 | Best: 7533944: 1
 Epoch: 6990 | lr: 1.00E-03 | ELBO: 7707766 | Δ_10: -99021.50 | Best: 7504334: 100%|██████████| 2000/2000 [01:22&lt;00:00, 24.32it/s]
 </pre></div></div>
 </div>
-<p>To obtain the results, we invoke the <code class="docutils literal notranslate"><span class="pre">.mean_to_anndata</span></code> function which computes the posterior mean of fitted parameters and stores them to the <code class="docutils literal notranslate"><span class="pre">anndata</span></code> object. Specifying <code class="docutils literal notranslate"><span class="pre">model_key</span></code> adds a prefix to the added keys such that a single <code class="docutils literal notranslate"><span class="pre">anndata</span></code> object may contain the the fitted parameters of multiple models.</p>
+<p>To obtain the results, we invoke the <code class="docutils literal notranslate"><span class="pre">.mean_to_anndata</span></code> function which computes the posterior mean of fitted parameters and stores them to the <code class="docutils literal notranslate"><span class="pre">anndata</span></code> object. Specifying <code class="docutils literal notranslate"><span class="pre">model_key</span></code> adds a prefix to the added keys such that a single <code class="docutils literal notranslate"><span class="pre">anndata</span></code> object may contain the the fitted parameters of multiple models. Also, note the arguments <code class="docutils literal notranslate"><span class="pre">num_samples</span></code> and <code class="docutils literal notranslate"><span class="pre">num_split</span></code> which allow to specify the number of posterior samples and the number of observations that are sampled during a single
+batch (here we set the number of posterior samples and number of observations per batch deliberately to 10 and 512 to avoid memory issues when the notebook is run in Google Colab).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0.mean_to_anndata(model_key=&#39;m0&#39;, num_split=64)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m0.mean_to_anndata(model_key=&#39;m0&#39;, num_samples=10, num_split=512)
 </pre></div>
 </div>
 </div>
@@ -782,7 +783,7 @@ Epoch: 6990 | lr: 1.00E-03 | ELBO: 7816562 | Δ_10: 8327.50 | Best: 7556992: 100
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m1.mean_to_anndata(model_key=&#39;m1&#39;, num_split=64)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m1.mean_to_anndata(model_key=&#39;m1&#39;, num_samples=10, num_split=512)
 </pre></div>
 </div>
 </div>
@@ -917,7 +918,7 @@ Epoch: 6990 | lr: 1.00E-03 | ELBO: 7801074 | Δ_10: -81267.00 | Best: 7532256: 1
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m2.mean_to_anndata(model_key=&#39;m2&#39;, num_split=64)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>m2.mean_to_anndata(model_key=&#39;m2&#39;, num_samples=10, num_split=512)
 </pre></div>
 </div>
 </div>
