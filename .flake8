@@ -5,3 +5,4 @@ exclude =
     docs/conf.py,
     sccca/legacy.py,
     scCCA/model.py
+    scCCA/.ipynb_checkpoints/model-checkpoint.py
