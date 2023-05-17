@@ -28,7 +28,10 @@ def get_states(design: DesignMatrix) -> namedtuple:
     for j, row in enumerate(range(unique_rows.shape[0])):
         idx = tuple(np.where(unique_rows[row] == 1)[0])
         combinations[idx] = unique_rows[row], j
+        
         state_name = "|".join([design.design_info.column_names[i] for i in np.where(unique_rows[row] == 1)[0]])
+        if state_name != 'Intercept':
+            state_name = state_name.lstrip('Intercept|')
         sparse_state[state_name] = j
 
     factor_cols = {v: k for k, v, in design.design_info.column_name_indexes.items()}
