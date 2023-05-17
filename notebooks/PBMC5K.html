@@ -362,16 +362,26 @@ div.rendered_html tbody tr:hover {
     text-align: unset;
 }
 </style>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import sys
-sys.path.append(&#39;/home/voehring/voehring/opt/scCCA&#39;)
-</pre></div>
-</div>
-</div>
 <p><a class="reference external" href="https://colab.research.google.com/github/sagar87/scCCA/blob/main/docs/notebooks/PBMC5K.ipynb"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p><em>In order to run this notebook in Google Colab uncomment and run the following cells. For best performance make sure that you have run the notebook on a GPU instance, i.e. choose from the menu bar Runtime &gt; Change Runtime &gt; Hardware accelerator &gt; GPU.</em></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Install scCCA + depenencies
+# !pip install --quiet scCCA
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Download the Kang et. al. dataset
+# !wget https://www.huber.embl.de/users/harald/sc/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5 /content/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5
+</pre></div>
+</div>
+</div>
 <section id="Analysing-PBMC5K-using-scCCA">
 <h1>Analysing PBMC5K using scCCA<a class="headerlink" href="#Analysing-PBMC5K-using-scCCA" title="Permalink to this headline"></a></h1>
 <div class="nbinput nblast docutils container">
@@ -391,7 +401,7 @@ import scCCA as scc
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>adata = sc.read_10x_h5(&#39;/home/voehring/voehring/projects/2022-05-14_10XCiteseq/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5&#39;, gex_only=False)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>adata = sc.read_10x_h5(&#39;/content/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5&#39;, gex_only=False)
 </pre></div>
 </div>
 </div>
@@ -563,7 +573,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_23_1.png" src="../_images/notebooks_PBMC5K_23_1.png" />
+<img alt="../_images/notebooks_PBMC5K_25_1.png" src="../_images/notebooks_PBMC5K_25_1.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -587,7 +597,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_24_1.png" src="../_images/notebooks_PBMC5K_24_1.png" />
+<img alt="../_images/notebooks_PBMC5K_26_1.png" src="../_images/notebooks_PBMC5K_26_1.png" />
 </div>
 </div>
 </section>
@@ -640,7 +650,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_29_1.png" src="../_images/notebooks_PBMC5K_29_1.png" />
+<img alt="../_images/notebooks_PBMC5K_31_1.png" src="../_images/notebooks_PBMC5K_31_1.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -987,7 +997,7 @@ Predicting z for obs 4096-5246.: 100%|██████████| 3/3 [00:00
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_PBMC5K_32_0.png" src="../_images/notebooks_PBMC5K_32_0.png" />
+<img alt="../_images/notebooks_PBMC5K_34_0.png" src="../_images/notebooks_PBMC5K_34_0.png" />
 </div>
 </div>
 <div class="nbinput nblast docutils container">

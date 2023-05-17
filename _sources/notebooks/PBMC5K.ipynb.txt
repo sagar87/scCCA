@@ -1,24 +1,41 @@
 {
  "cells": [
   {
-   "cell_type": "code",
-   "execution_count": 1,
-   "id": "8125a0a4",
-   "metadata": {
-    "tags": []
-   },
-   "outputs": [],
-   "source": [
-    "import sys \n",
-    "sys.path.append('/home/voehring/voehring/opt/scCCA')"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "id": "63875f19-de66-4e45-bb02-3397d7ab8edf",
    "metadata": {},
    "source": [
     "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sagar87/scCCA/blob/main/docs/notebooks/PBMC5K.ipynb)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "edca9ef1-bd20-4764-9eb5-60d93f8fe70f",
+   "metadata": {},
+   "source": [
+    "*In order to run this notebook in Google Colab uncomment and run the following cells. For best performance make sure that you have run the notebook on a GPU instance, i.e. choose from the menu bar Runtime > Change Runtime > Hardware accelerator > GPU.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d008cd55-fbe4-40e6-8f17-2c5b456cc4e8",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Install scCCA + depenencies\n",
+    "# !pip install --quiet scCCA "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "66534544-d02b-4704-9dd1-28c87a42fc1d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Download the Kang et. al. dataset\n",
+    "# !wget https://www.huber.embl.de/users/harald/sc/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5 /content/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5"
    ]
   },
   {
@@ -67,7 +84,7 @@
     }
    ],
    "source": [
-    "adata = sc.read_10x_h5('/home/voehring/voehring/projects/2022-05-14_10XCiteseq/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5', gex_only=False)"
+    "adata = sc.read_10x_h5('/content/5k_pbmc_protein_v3_filtered_feature_bc_matrix.h5', gex_only=False)"
    ]
   },
   {

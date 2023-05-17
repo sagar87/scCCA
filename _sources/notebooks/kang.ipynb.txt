@@ -1,19 +1,6 @@
 {
  "cells": [
   {
-   "cell_type": "code",
-   "execution_count": 1,
-   "id": "e5287d9d-814c-4867-933c-cf17f1a0c23d",
-   "metadata": {
-    "tags": []
-   },
-   "outputs": [],
-   "source": [
-    "%load_ext autoreload\n",
-    "%autoreload 2"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "id": "17d90768-1df3-4496-b1f4-9551d27ad422",
    "metadata": {
@@ -21,6 +8,54 @@
    },
    "source": [
     "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/sagar87/scCCA/blob/main/docs/notebooks/kang.ipynb)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3ac03b17-bafc-44c6-8cad-1ae108acf9ee",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "*In order to run this notebook in Google Colab uncomment and run the following cells. For best performance make sure that you have run the notebook on a GPU instance, i.e. choose from the menu bar Runtime > Change Runtime > Hardware accelerator > GPU.*"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "b54c0a93-cbb2-4889-b588-7dea68df9223",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Install scCCA + depenencies\n",
+    "# !pip install --quiet scCCA "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "15c6348d-ce64-4b23-a912-5cec1503b624",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Download the Kang et. al. dataset\n",
+    "# !wget https://www.huber.embl.de/users/harald/sc/kang.h5ad /content/kang.h5ad"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "752074ea-e5cc-42b2-a078-dd0c6d4b8c98",
+   "metadata": {
+    "tags": []
+   },
+   "source": [
+    "# Analysing interferon-$\\beta$ stimulated PBMCs using scPCA\n",
+    "\n",
+    "In this notebook, we analyse the dataset from Kang et. al. in which the authors stimulated PBMCs with Interferon-$\\beta$. We load the dataset using `scanpy`."
    ]
   },
   {
@@ -32,10 +67,6 @@
    },
    "outputs": [],
    "source": [
-    "# IGNORE the following cell\n",
-    "import sys\n",
-    "sys.path.insert(0, '/home/voehring/gpu-py38/lib/python3.8/site-packages')\n",
-    "sys.path.append('/home/voehring/voehring/opt/scCCA')\n",
     "from IPython.display import Image\n",
     "from IPython.core.display import HTML "
    ]
@@ -82,16 +113,6 @@
    ]
   },
   {
-   "cell_type": "markdown",
-   "id": "752074ea-e5cc-42b2-a078-dd0c6d4b8c98",
-   "metadata": {},
-   "source": [
-    "# Analysing interferon-$\\beta$ stimulated PBMCs using scPCA\n",
-    "\n",
-    "In this notebook, we analyse the dataset from Kang et. al. in which the authors stimulated PBMCs with Interferon-$\\beta$. We load the dataset using `scanpy`."
-   ]
-  },
-  {
    "cell_type": "code",
    "execution_count": 5,
    "id": "e711b079-fe88-472f-affd-862b41b41bb5",
@@ -100,7 +121,7 @@
    },
    "outputs": [],
    "source": [
-    "adata = sc.read_h5ad('/home/voehring/voehring/projects/2022-11-23_constantin/kang.h5ad')"
+    "adata = sc.read_h5ad('/content/kang.h5ad')"
    ]
   },
   {
