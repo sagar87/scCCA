@@ -3,7 +3,7 @@ name = "scCCA"
 packages = [
     { include = "scCCA" },
 ]
-version = "0.2.0"
+version = "0.3.0"
 description = "Single cell canonical correlation analysis."
 authors = ["Harald Vohringer"]
 
