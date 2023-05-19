@@ -116,7 +116,7 @@ def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna",
         )
         .sort_values(by="diff", ascending=ascending)
         .reset_index(drop=True)
-        .rename(columns={'diff': 'value'})
+        .rename(columns={"diff": "value"})
     )
 
 
