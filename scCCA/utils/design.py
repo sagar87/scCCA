@@ -1,7 +1,9 @@
 from collections import OrderedDict, namedtuple
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
+from anndata import AnnData
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
@@ -52,7 +54,7 @@ def get_states(design: DesignMatrix) -> namedtuple:
     )
 
 
-def get_state_loadings(adata, model_key: str) -> dict:
+def get_state_loadings(adata: AnnData, model_key: str) -> dict:
     """
     Computes the loading matrix for each state defined in the
     design matrix of the model.
@@ -79,7 +81,7 @@ def get_state_loadings(adata, model_key: str) -> dict:
     return states
 
 
-def get_formula(adata, formula):
+def get_formula(adata: AnnData, formula: str):
     if formula is None:
         batch = dmatrix("1", adata.obs)
     else:
@@ -88,7 +90,17 @@ def get_formula(adata, formula):
     return batch
 
 
-def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
+def get_ordered_genes(
+    adata: AnnData,
+    model_key: str,
+    state: str,
+    factor: int,
+    sign: Union[int, float] = 1.0,
+    vector: str = "W_rna",
+    highest: int = 10,
+    lowest: int = 0,
+    ascending: bool = False,
+):
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
     state = model_design[state]
@@ -120,7 +132,17 @@ def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna",
     )
 
 
-def get_diff_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
+def get_diff_genes(
+    adata: AnnData,
+    model_key: str,
+    state: List[str],
+    factor: int,
+    sign: Union[int, float] = 1.0,
+    vector: str = "W_rna",
+    highest: int = 10,
+    lowest: int = 0,
+    ascending: bool = False,
+):
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
     state_a = model_design[state[0]]
