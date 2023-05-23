@@ -1,7 +1,27 @@
+from typing import List, Union
+
 import gseapy as gp
 import pandas as pd
 
-from .design import get_diff_genes
+from .design import get_diff_genes, get_ordered_genes
+
+
+def geneset_enrichment_factor(
+    adata,
+    model_key: str,
+    states: Union[str, List[str]],
+    factor: int,
+    highest: int = 50,
+    lowest: int = 0,
+    sign: Union[int, float] = 1.0,
+    geneset: str = "GO_Biological_Process_2021",
+    organism: str = "human",
+):
+    ordered_genes = get_ordered_genes(
+        adata, model_key=model_key, state=states, factor=factor, highest=highest, lowest=lowest
+    )
+    enr = gp.enrichr(gene_list=ordered_genes["gene"].tolist(), gene_sets=geneset, organism=organism, outdir=None)
+    return enr.results
 
 
 def geneset_enrichment_diff(
@@ -12,7 +32,7 @@ def geneset_enrichment_diff(
     highest=50,
     lowest=0,
     sign=1.0,
-    gene_sets=["GO_Biological_Process_2021"],
+    geneset=["GO_Biological_Process_2021"],
     organism="human",
 ):
     # assert (highest > 0 and lowest == 0) or (highest == 0 and lowest > 0), "Either highest or lowest must be greater zero but not both."
@@ -31,7 +51,7 @@ def geneset_enrichment_diff(
 
         enr = gp.enrichr(
             gene_list=df["gene"].tolist(),  # or "./tests/data/gene_list.txt",
-            gene_sets=gene_sets,
+            gene_sets=geneset,
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
@@ -51,7 +71,7 @@ def geneset_enrichment_diff(
 
         enr_up = gp.enrichr(
             gene_list=df_up["gene"].tolist(),  # or "./tests/data/gene_list.txt",
-            gene_sets=gene_sets,
+            gene_sets=geneset,
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
@@ -69,7 +89,7 @@ def geneset_enrichment_diff(
 
         enr_down = gp.enrichr(
             gene_list=df_down["gene"].tolist(),  # or "./tests/data/gene_list.txt",
-            gene_sets=gene_sets,
+            gene_sets=geneset,
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
