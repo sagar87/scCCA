@@ -1,6 +1,7 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Union
 
+import gseapy as gp
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -47,6 +48,7 @@ def _get_state_data(
         states_data[i]["xo"] = x[order]
         states_data[i]["yo"] = loadings[order]
         states_data[i]["sz"] = np.abs(loadings) * size_scale
+        states_data[i]["go"] = adata.var_names[order]
 
     return states_data
 
@@ -78,6 +80,8 @@ def loadings_scatter(
     states: List[str] = [],
     genes: List[str] = [],
     diff: List[str] = [],
+    gene_set: Union[str, None] = None,
+    gene_set_lines: bool = False,
     vector: str = "W_rna",
     alpha: float = 1.0,
     highest=3,
@@ -90,6 +94,7 @@ def loadings_scatter(
     plot_diff=False,
     return_order=False,
     annotation_linewidth=0.5,
+    format_func=lambda x: x,
     cmap=cm.RdBu,
     ax=None,
 ):
@@ -117,7 +122,7 @@ def loadings_scatter(
     #     (len(genes) > 0) or (len(diff) > 0)
     # ), "Only one of genes or diff can be specified."
     if ax is None:
-        fig = plt.figure()
+        _ = plt.figure()
         ax = plt.gca()
 
     if isinstance(show_labels, int):
@@ -127,9 +132,30 @@ def loadings_scatter(
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
 
+    if gene_set is not None:
+        gene_sets_dict = {}
+
     if len(genes) > 0:
         gene_bool = adata.var_names.isin(genes)
         coords = np.zeros((len(states), len(genes), 2))
+
+    elif gene_set is not None and len(diff) == 0:
+        for s in states:
+            state = model_design[s]
+            loading_vec = sign * adata.varm[f"{model_key}_{vector}"][..., factor, state]
+            order = np.argsort(loading_vec)
+            gene_list = adata.var_names.to_numpy()[order][-highest:]
+
+            enr = gp.enrichr(
+                gene_list=gene_list.tolist(),
+                gene_sets=gene_set,
+                organism="human",  # don't forget to set organism to the one you desired! e.g. Yeast
+                outdir=None,  # don't write to disk
+            )
+
+            gene_sets_dict[s] = enr.results
+        # import pdb; pdb.set_trace()
+        diff_genes = []
 
     elif len(diff) > 0:
         state_a = model_design[diff[0]]
@@ -187,7 +213,7 @@ def loadings_scatter(
                 # adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
             # gene_list = adata.var_names[gene_bool].tolist()
-        else:
+        elif gene_set is None:
             # mark lowest diff_genes
             if i in show_labels:
                 order = state["o"]
@@ -206,11 +232,45 @@ def loadings_scatter(
                     highest_y = state["yo"][-highest:].tolist()
 
                     texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
+        elif gene_set is not None:
+            if states[i] in gene_sets_dict.keys():
 
-    # print(texts)
+                if i in show_labels:
+                    order = state["o"]
+                    df = gene_sets_dict[states[i]]
+
+                    # gene_set_x = []
+                    # gene_set_y = []
+                    # gene_set_n = []
+
+                    full_gene_set = defaultdict(dict)
+
+                    for k, row in df.head(5).iterrows():
+                        genes = row["Genes"].split(";")
+                        genes_index = np.where(state["go"].isin(genes))[0]
+
+                        # gene_set_x += [state["xo"][genes_index[0]]]
+                        # gene_set_y += [state["yo"][genes_index[0]]]
+                        # gene_set_n += [format_func(row['Term'])]
+
+                        # code here
+                        full_gene_set[format_func(row["Term"])]["x"] = state["xo"][genes_index]
+                        full_gene_set[format_func(row["Term"])]["y"] = state["yo"][genes_index]
+                        full_gene_set[format_func(row["Term"])]["name"] = format_func(row["Term"])
+
+                    gene_names = list(full_gene_set.keys())
+                    gene_xcoords = [full_gene_set[k]["x"][0] for k in gene_names]
+                    gene_ycoords = [full_gene_set[k]["y"][0] for k in gene_names]
+                    texts += _annotate_genes(ax, gene_xcoords, gene_ycoords, gene_names, fontsize=fontsize)
+
+                # df['Genes'].split(';')[9]
+            # print('Got here')
 
     if len(texts) > 0:
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
+        if gene_set_lines:
+            adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=0), ax=ax)
+        else:
+            adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
     if len(diff) > 0 or len(diff_genes) > 0:
         for j in range(len(states) - 1):
@@ -223,6 +283,21 @@ def loadings_scatter(
                     linestyle="--",
                     lw=0.5,
                 )
+    if gene_set_lines:
+        for t in texts:
+            x_end, y_end = t.get_position()
+            gene_name = t.get_text()
+            for x_start, y_start in zip(full_gene_set[gene_name]["x"], full_gene_set[gene_name]["y"]):
+                ax.plot(
+                    [x_start, x_end],
+                    [y_start, y_end],
+                    alpha=0.5,
+                    color="k",
+                    linestyle="--",
+                    lw=0.2,
+                )
+
+        # import pdb;pdb.set_trace()
 
     ax.set_xticks(list(states_data.keys()))
     ax.set_xticklabels(states)
@@ -233,7 +308,8 @@ def loadings_scatter(
             return adata.var_names[order[:lowest]]
         else:
             return (adata.var_names[order[:lowest]], adata.var_names[order[-highest:]])
-    return fig, ax
+
+    return ax
 
 
 # def loadings_scatter_highlight(
