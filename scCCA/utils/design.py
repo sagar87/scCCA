@@ -90,15 +90,15 @@ def get_formula(adata: AnnData, formula: str):
     return batch
 
 
-def _get_gene_idx(order: np.ndarray, highest: int, lowest: int):
+def _get_gene_idx(array: np.ndarray, highest: int, lowest: int):
     """
     Given an array of indices return the highest and/or lowest
     indices.
 
     Parameters
     ----------
-    order: np.ndarray
-        index array
+    array: np.ndarray
+        array in which to extract the highest/lowest indices
     highest: int
         number of top indices to extract
     lowest: int
@@ -108,6 +108,8 @@ def _get_gene_idx(order: np.ndarray, highest: int, lowest: int):
     -------
     np.ndarray
     """
+    order = np.argsort(array)
+
     if highest == 0:
         gene_idx = order[:lowest]
     else:
@@ -131,8 +133,7 @@ def get_ordered_genes(
     model_design = model_dict["design"]
     state = model_design[state]
     diff_factor = adata.varm[f"{model_key}_{vector}"][..., factor, state]
-    order = np.argsort(diff_factor)
-    gene_idx = _get_gene_idx(order, highest, lowest)
+    gene_idx = _get_gene_idx(diff_factor, highest, lowest)
 
     magnitude = np.abs(diff_factor[gene_idx])
     genes = adata.var_names.to_numpy()[gene_idx]
@@ -175,8 +176,8 @@ def get_diff_genes(
         adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
         - adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
     )
-    order = np.argsort(diff_factor)
-    gene_idx = _get_gene_idx(order, highest, lowest)
+
+    gene_idx = _get_gene_idx(diff_factor, highest, lowest)
 
     magnitude = np.abs(diff_factor[gene_idx])
     genes = adata.var_names.to_numpy()[gene_idx]
