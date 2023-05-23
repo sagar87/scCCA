@@ -8,6 +8,7 @@ import numpy as np
 from adjustText import adjust_text
 from matplotlib.colors import Colormap
 
+from ..utils import get_diff_genes
 from .utils import rand_jitter, set_up_cmap
 
 
@@ -158,28 +159,15 @@ def loadings_scatter(
         diff_genes = []
 
     elif len(diff) > 0:
-        state_a = model_design[diff[0]]
-        state_b = model_design[diff[1]]
-
-        # diff_factor = sign * (model_dict[vector][state_b][factor] - model_dict[vector][state_a][factor])
-        diff_factor = sign * (
-            adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
-            - adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
-        )
-        order = np.argsort(diff_factor)
-
-        if highest == 0:
-            gene_idx = order[:lowest]
-        else:
-            gene_idx = np.concatenate([order[:lowest], order[-highest:]])
-
-        # magnitude = np.abs(diff_factor[gene_idx])
-        diff_genes = adata.var_names.to_numpy()[gene_idx]
+        df = get_diff_genes(adata, model_key, states, factor, highest=highest, lowest=lowest, sign=sign, vector=vector)
+        diff_weights = df["diff"].to_numpy()
+        diff_genes = df["gene"].to_numpy()
+        gene_idx = df["index"].to_numpy()
         gene_bool = adata.var_names.isin(diff_genes)
         coords = np.zeros((len(states), len(diff_genes), 2))
 
         if plot_diff:
-            diff_genes = np.array([f"{gene} {diff:.2f}" for gene, diff in zip(diff_genes, diff_factor[gene_idx])])
+            diff_genes = np.array([f"{gene} {diff:.2f}" for gene, diff in zip(diff_genes, diff_weights)])
     else:
         diff_genes = []
 
