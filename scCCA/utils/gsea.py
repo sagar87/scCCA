@@ -16,7 +16,7 @@ def geneset_enrichment_diff(
     organism="human",
 ):
     # assert (highest > 0 and lowest == 0) or (highest == 0 and lowest > 0), "Either highest or lowest must be greater zero but not both."
-    
+
     if (highest > 0 and lowest == 0) or (highest == 0 and lowest > 0):
         df = get_diff_genes(
             adata,
@@ -35,7 +35,7 @@ def geneset_enrichment_diff(
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
-        enr.results['Regulation'] = 'Down' if lowest > 0 else 'Up'
+        enr.results["Regulation"] = "Down" if lowest > 0 else "Up"
         res = enr.results
     else:
         df_up = get_diff_genes(
@@ -55,7 +55,7 @@ def geneset_enrichment_diff(
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
-        
+
         df_down = get_diff_genes(
             adata,
             model_key,
@@ -73,9 +73,9 @@ def geneset_enrichment_diff(
             organism=organism,  # don't forget to set organism to the one you desired! e.g. Yeast
             outdir=None,  # don't write to disk
         )
-        
-        enr_up.results['Regulation'] = 'Up'
-        enr_down.results['Regulation'] = 'Down'
+
+        enr_up.results["Regulation"] = "Up"
+        enr_down.results["Regulation"] = "Down"
         res = pd.concat([enr_up.results, enr_down.results])
-        
+
     return res
