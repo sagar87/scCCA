@@ -147,6 +147,7 @@ def get_ordered_genes(
                 "type": ["lowest"] * lowest + ["highest"] * highest,
                 "state": state,
                 "factor": factor,
+                "index": gene_idx,
             }
         )
         .sort_values(by="diff", ascending=ascending)
@@ -191,6 +192,7 @@ def get_diff_genes(
                 "type": ["lowest"] * lowest + ["highest"] * highest,
                 "state": state[1] + "-" + state[0],
                 "factor": factor,
+                "index": gene_idx,
             }
         )
         .sort_values(by="diff", ascending=ascending)
