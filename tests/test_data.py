@@ -20,6 +20,9 @@ def test_get_rna_counts(test_sparse_anndata):
         ("m2", "Intercept", 0, 0, 50, "W_rna"),
         ("m2", "Intercept", 5, 0, 50, "W_rna"),
         ("m2", "label[T.stim]", 0, 0, 50, "W_rna"),
+        ("m2", "Intercept", 0, 25, 25, "W_rna"),
+        ("m2", "Intercept", 5, 25, 25, "W_rna"),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna"),
     ],
 )
 def test_get_ordered_genes(model_key, state, factor, highest, lowest, vector, test_anndata):
@@ -41,3 +44,5 @@ def test_get_ordered_genes(model_key, state, factor, highest, lowest, vector, te
     assert np.all(
         df["value"].to_numpy() == test_anndata.varm[f"{model_key}_{vector}"][..., factor, state_index][gene_idx][::-1]
     )
+
+
