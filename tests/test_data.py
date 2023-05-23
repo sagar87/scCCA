@@ -19,48 +19,102 @@ def test_get_gene_idx():
 
 
 @pytest.mark.parametrize(
-    "model_key, state, factor, highest, lowest, vector",
+    "model_key, state, factor, highest, lowest, vector, sign, ascending",
     [
-        ("m2", "Intercept", 0, 50, 0, "W_rna"),
-        ("m2", "Intercept", 5, 50, 0, "W_rna"),
-        ("m2", "label[T.stim]", 0, 50, 0, "W_rna"),
-        ("m2", "Intercept", 0, 0, 50, "W_rna"),
-        ("m2", "Intercept", 5, 0, 50, "W_rna"),
-        ("m2", "label[T.stim]", 0, 0, 50, "W_rna"),
-        ("m2", "Intercept", 0, 25, 25, "W_rna"),
-        ("m2", "Intercept", 5, 25, 25, "W_rna"),
-        ("m2", "label[T.stim]", 0, 25, 25, "W_rna"),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", 1.0, False),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", 1.0, False),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", 1.0, False),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", 1.0, True),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", 1.0, True),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", 1.0, True),
     ],
 )
-def test_get_ordered_genes(model_key, state, factor, highest, lowest, vector, test_anndata):
+def test_get_ordered_genes(model_key, state, factor, highest, lowest, vector, sign, ascending, test_anndata):
     # test that the right order of genes is returned
 
     df = get_ordered_genes(
-        test_anndata, model_key=model_key, state=state, factor=factor, highest=highest, lowest=lowest, vector=vector
+        test_anndata,
+        model_key=model_key,
+        state=state,
+        factor=factor,
+        highest=highest,
+        lowest=lowest,
+        vector=vector,
+        sign=sign,
+        ascending=ascending,
     )
 
     state_index = test_anndata.uns[model_key]["design"][state]
-    factor_weights = test_anndata.varm[f"{model_key}_{vector}"][..., factor, state_index]
+    factor_weights = sign * test_anndata.varm[f"{model_key}_{vector}"][..., factor, state_index]
     gene_idx = _get_gene_idx(factor_weights, highest, lowest)
 
-    assert df["gene"].tolist() == test_anndata.var_names[gene_idx][::-1].tolist()
-    assert np.all(
-        df["value"].to_numpy() == test_anndata.varm[f"{model_key}_{vector}"][..., factor, state_index][gene_idx][::-1]
-    )
+    if ascending:
+        assert np.all(df["gene"].to_numpy() == test_anndata.var_names[gene_idx].to_numpy())
+        assert np.all(df["value"].to_numpy() == factor_weights[gene_idx])
+    else:
+        assert np.all(df["gene"].to_numpy() == test_anndata.var_names[gene_idx][::-1].to_numpy())
+        assert np.all(df["value"].to_numpy() == factor_weights[gene_idx][::-1])
 
 
 @pytest.mark.parametrize(
-    "model_key, state, factor, highest, lowest, vector, sign",
+    "model_key, state, factor, highest, lowest, vector, sign, ascending",
     [
-        ("m2", ["Intercept", "label[T.stim]"], 0, 50, 0, "W_rna", 1.0),
-        ("m2", ["Intercept", "label[T.stim]"], 5, 50, 0, "W_rna", 1.0),
-        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0),
-        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0),
-        ("m2", ["Intercept", "label[T.stim]"], 5, 0, 50, "W_rna", 1.0),
-        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 50, 0, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 5, 50, 0, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 5, 0, 50, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, False),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 50, 0, "W_rna", 1.0, True),
+        ("m2", ["Intercept", "label[T.stim]"], 5, 50, 0, "W_rna", 1.0, True),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, True),
+        ("m2", ["Intercept", "label[T.stim]"], 5, 0, 50, "W_rna", 1.0, True),
+        ("m2", ["Intercept", "label[T.stim]"], 0, 0, 50, "W_rna", 1.0, True),
     ],
 )
-def test_get_diff_genes(model_key, state, factor, highest, lowest, vector, sign, test_anndata):
+def test_get_diff_genes(model_key, state, factor, highest, lowest, vector, sign, ascending, test_anndata):
+    df = get_diff_genes(
+        test_anndata,
+        model_key,
+        state,
+        factor,
+        highest=highest,
+        lowest=lowest,
+        vector=vector,
+        sign=sign,
+        ascending=ascending,
+    )
 
     model_dict = test_anndata.uns[model_key]
     model_design = model_dict["design"]
@@ -71,9 +125,9 @@ def test_get_diff_genes(model_key, state, factor, highest, lowest, vector, sign,
     )
     gene_idx = _get_gene_idx(diff, highest, lowest)
 
-    df = get_diff_genes(
-        test_anndata, model_key, state, factor, highest=highest, lowest=lowest, vector=vector, sign=sign
-    )
-
-    assert df["gene"].tolist() == test_anndata.var_names[gene_idx][::-1].tolist()
-    assert np.all(df["diff"].to_numpy() == diff[gene_idx][::-1])
+    if ascending:
+        assert np.all(df["gene"].to_numpy() == test_anndata.var_names[gene_idx].to_numpy())
+        assert np.all(df["diff"].to_numpy() == diff[gene_idx])
+    else:
+        assert np.all(df["gene"].to_numpy() == test_anndata.var_names[gene_idx][::-1].to_numpy())
+        assert np.all(df["diff"].to_numpy() == diff[gene_idx][::-1])
