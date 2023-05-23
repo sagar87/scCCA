@@ -91,3 +91,5 @@ def set_up_plot(
     else:
         for i, ax_i in zip(instances, ax.flatten()):
             func(adata, model_key, i, ax=ax_i, **kwargs)
+
+    return ax
