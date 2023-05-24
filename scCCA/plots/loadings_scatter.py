@@ -8,7 +8,7 @@ import numpy as np
 from adjustText import adjust_text
 from matplotlib.colors import Colormap
 
-from ..utils import get_diff_genes
+from ..utils import get_diff_genes, get_factor_enrichment
 from .utils import rand_jitter, set_up_cmap
 
 
@@ -81,8 +81,7 @@ def loadings_scatter(
     states: List[str] = [],
     genes: List[str] = [],
     diff: List[str] = [],
-    gene_set: Union[str, None] = None,
-    gene_set_lines: bool = False,
+    geneset: Union[str, None] = None,
     vector: str = "W_rna",
     alpha: float = 1.0,
     highest=3,
@@ -91,8 +90,11 @@ def loadings_scatter(
     sign=1.0,
     jitter=0.01,
     fontsize=10,
+    geneset_top_genes: int = 100,
+    geneset_bottom_genes: int = 0,
     show_labels=0,
-    plot_diff=False,
+    show_geneset: bool = False,
+    show_diff: bool = False,
     return_order=False,
     annotation_linewidth=0.5,
     format_func=lambda x: x,
@@ -133,32 +135,32 @@ def loadings_scatter(
     model_dict = adata.uns[model_key]
     model_design = model_dict["design"]
 
-    if gene_set is not None:
+    if geneset is not None:
         gene_sets_dict = {}
 
     if len(genes) > 0:
+        # if genes are specified just show them
         gene_bool = adata.var_names.isin(genes)
         coords = np.zeros((len(states), len(genes), 2))
 
-    elif gene_set is not None and len(diff) == 0:
-        for s in states:
-            state = model_design[s]
-            loading_vec = sign * adata.varm[f"{model_key}_{vector}"][..., factor, state]
-            order = np.argsort(loading_vec)
-            gene_list = adata.var_names.to_numpy()[order][-highest:]
-
-            enr = gp.enrichr(
-                gene_list=gene_list.tolist(),
-                gene_sets=gene_set,
-                organism="human",  # don't forget to set organism to the one you desired! e.g. Yeast
-                outdir=None,  # don't write to disk
+    elif geneset is not None and len(diff) == 0:
+        # if geneset but diff is specified
+        for s, current_state in enumerate(states):
+            enrichment_results = get_factor_enrichment(
+                adata,
+                model_key,
+                current_state,
+                factor,
+                highest=geneset_top_genes,
+                lowest=geneset_bottom_genes,
+                sign=sign,
+                geneset=geneset,
             )
-
-            gene_sets_dict[s] = enr.results
+            gene_sets_dict[current_state] = enrichment_results
         # import pdb; pdb.set_trace()
         diff_genes = []
 
-    elif len(diff) > 0:
+    elif geneset is None and len(diff) > 0:
         df = get_diff_genes(adata, model_key, states, factor, highest=highest, lowest=lowest, sign=sign, vector=vector)
         diff_weights = df["diff"].to_numpy()
         diff_genes = df["gene"].to_numpy()
@@ -166,7 +168,7 @@ def loadings_scatter(
         gene_bool = adata.var_names.isin(diff_genes)
         coords = np.zeros((len(states), len(diff_genes), 2))
 
-        if plot_diff:
+        if show_diff:
             diff_genes = np.array([f"{gene} {diff:.2f}" for gene, diff in zip(diff_genes, diff_weights)])
     else:
         diff_genes = []
@@ -201,7 +203,7 @@ def loadings_scatter(
                 # adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
 
             # gene_list = adata.var_names[gene_bool].tolist()
-        elif gene_set is None:
+        elif geneset is None:
             # mark lowest diff_genes
             if i in show_labels:
                 order = state["o"]
@@ -220,7 +222,7 @@ def loadings_scatter(
                     highest_y = state["yo"][-highest:].tolist()
 
                     texts += _annotate_genes(ax, highest_x, highest_y, highest_names, fontsize=fontsize)
-        elif gene_set is not None:
+        elif geneset is not None:
             if states[i] in gene_sets_dict.keys():
 
                 if i in show_labels:
@@ -255,7 +257,7 @@ def loadings_scatter(
             # print('Got here')
 
     if len(texts) > 0:
-        if gene_set_lines:
+        if show_geneset:
             adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=0), ax=ax)
         else:
             adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=annotation_linewidth), ax=ax)
@@ -271,7 +273,7 @@ def loadings_scatter(
                     linestyle="--",
                     lw=0.5,
                 )
-    if gene_set_lines:
+    if show_geneset:
         for t in texts:
             x_end, y_end = t.get_position()
             gene_name = t.get_text()
@@ -279,7 +281,7 @@ def loadings_scatter(
                 ax.plot(
                     [x_start, x_end],
                     [y_start, y_end],
-                    alpha=0.5,
+                    alpha=0.3,
                     color="k",
                     linestyle="--",
                     lw=0.2,
