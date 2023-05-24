@@ -6,7 +6,7 @@ import pandas as pd
 from .design import get_diff_genes, get_ordered_genes
 
 
-def geneset_enrichment_factor(
+def get_factor_enrichment(
     adata,
     model_key: str,
     states: Union[str, List[str]],
@@ -17,6 +17,9 @@ def geneset_enrichment_factor(
     geneset: str = "GO_Biological_Process_2021",
     organism: str = "human",
 ):
+    if (highest > 0) and (lowest > 0):
+        raise ValueError("Plese provide either highest or lower by setting one of them to zero.")
+
     ordered_genes = get_ordered_genes(
         adata, model_key=model_key, state=states, factor=factor, highest=highest, lowest=lowest
     )
