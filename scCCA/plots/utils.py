@@ -31,7 +31,46 @@ def rand_jitter(arr, stdev=1):
 
 
 def set_up_subplots(num_plots, ncols=4, width=4, height=3):
-    """Set up subplots for plotting multiple factors."""
+    """
+    Set up subplots for plotting multiple factors.
+
+    Parameters
+    ----------
+    num_plots : int
+        The total number of plots to be created.
+    ncols : int, optional
+        The number of columns in the subplot grid. Default is 4.
+    width : int, optional
+        The width factor for each subplot. Default is 4.
+    height : int, optional
+        The height factor for each subplot. Default is 3.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The Figure object representing the entire figure.
+    axes : numpy.ndarray of matplotlib.axes.Axes
+        An array of Axes objects representing the subplots. The shape of the
+        array is determined by the number of rows and columns.
+
+    Notes
+    -----
+    - If `num_plots` is 1, a single subplot is created and returned as `fig` and `ax`.
+    - If `num_plots` is less than `ncols`, a single row of subplots is created.
+    - If `num_plots` is greater than or equal to `ncols`, a grid of subplots is created.
+    - The `axes` array may contain empty subplots if the number of plots is less than the total available subplots.
+
+    Examples
+    --------
+    # Create a single subplot
+    fig, ax = set_up_subplots(num_plots=1)
+
+    # Create a grid of subplots with 2 rows and 4 columns
+    fig, axes = set_up_subplots(num_plots=8)
+
+    # Create a single row of subplots with 1 row and 3 columns
+    fig, axes = set_up_subplots(num_plots=3, ncols=3)
+    """
 
     if num_plots == 1:
         fig, ax = plt.subplots()
