@@ -1,7 +1,6 @@
 from collections import defaultdict
 from typing import List, Union
 
-import gseapy as gp
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -102,28 +101,60 @@ def loadings_scatter(
     ax=None,
 ):
     """
-    Plot the loadings for a given factor and states.
+    Scatter plot of factor loadings for a given factor in each state.
 
-
-    Parameters
-    ----------
-    adata: anndata.AnnData`
-        Annotated data matrix.
+    Arguments
+    ---------
+    adata: AnnData
+        AnnData object with the fitted model.
+    model_key: str
+        Key used to store the fitted model in adata.uns.
     factor: int
         The factor to plot.
-    model_key: str, optional (default: 'scpca')
-        The key in `adata` where the model is stored.
     states: List[str], optional (default: [])
-        The states to plot. If empty, all states are plotted.
+        The states to include in the plot.
     genes: List[str], optional (default: [])
-        The genes to highlight. If genes and diff are empty, the genes with
-        the highest and lowest expression are highlighted.
+        The genes to include in the plot.
     diff: List[str], optional (default: [])
-        The list must contain two states. The genes with the highest and lowest
+        The genes to highlight in the plot.
+    geneset: str or None, optional (default: None)
+        Name of a gene set to include in the plot. Requires gseapy package.
+    vector: str, optional (default: "W_rna")
+        Vector to use for plotting the loadings.
+    alpha: float, optional (default: 1.0)
+        Transparency of the scatter plot.
+    highest: int, optional (default: 3)
+        Number of genes with highest loadings to plot per state.
+    lowest: int, optional (default: 3)
+        Number of genes with lowest loadings to plot per state.
+    size_scale: float, optional (default: 1.0)
+        Scaling factor for the gene symbol size.
+    sign: float, optional (default: 1.0)
+        Sign of the loadings.
+    jitter: float, optional (default: 0.01)
+        Jittering factor for the x-axis to reduce overlap.
+    fontsize: int, optional (default: 10)
+        Font size for gene labels.
+    geneset_top_genes: int, optional (default: 100)
+        Number of genes from the gene set to plot with the highest loadings.
+    geneset_bottom_genes: int, optional (default: 0)
+        Number of genes from the gene set to plot with the lowest loadings.
+    show_labels: int, optional (default: 0)
+        Show gene labels for top `show_labels` genes with the highest loadings.
+    show_geneset: bool, optional (default: False)
+        Show the gene set as a solid line.
+    show_diff: bool, optional (default: False)
+        Show the differential genes as a dashed line.
+    return_order: bool, optional (default: False)
+        Return the order of genes plotted.
+    annotation_kwargs: dict, optional (default: {})
+        Additional keyword arguments for gene label annotations.
+
+    Returns
+    -------
+    order: np.ndarray
+        The order of genes plotted (only if `return_order` is True).
     """
-    # assert (
-    #     (len(genes) > 0) or (len(diff) > 0)
-    # ), "Only one of genes or diff can be specified."
     if ax is None:
         _ = plt.figure()
         ax = plt.gca()
@@ -132,8 +163,6 @@ def loadings_scatter(
         show_labels = [show_labels]
 
     states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale, cmap)
-    model_dict = adata.uns[model_key]
-    model_design = model_dict["design"]
 
     if geneset is not None:
         gene_sets_dict = {}
@@ -300,60 +329,3 @@ def loadings_scatter(
             return (adata.var_names[order[:lowest]], adata.var_names[order[-highest:]])
 
     return ax
-
-
-# def loadings_scatter_highlight(
-#     adata,
-#     factor,
-#     model_key="scCCA",
-#     vector="W_lin",
-#     states: List[str] = [],
-#     genes=[],
-#     size_scale=1.0,
-#     sign=1.0,
-#     jitter=0.01,
-#     show_labels=0,
-#     fontsize=12,
-#     repel=0.15,
-#     ax=None,
-# ):
-
-#     states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale)
-
-#     if ax is None:
-#         plt.figure()
-#         ax = plt.gca()
-
-#     gene_bool = adata.var_names.isin(genes)
-#     coords = np.zeros((len(states), len(genes), 2))
-#     for i, state in states_data.items():
-#         _scatter(ax, state)
-
-#         coords[i, :, 0] = state["x"][gene_bool]
-#         coords[i, :, 1] = state["y"][gene_bool]
-#         if i == show_labels:
-#             repel_labels(
-#                 ax,
-#                 state["x"][gene_bool],
-#                 state["y"][gene_bool],
-#                 adata.var_names[gene_bool],
-#                 label_pos_y=0.15,
-#                 k=repel,
-#                 fontsize=fontsize,
-#             )
-
-#     for j in range(len(states) - 1):
-#         for g in range(len(genes)):
-#             ax.plot(
-#                 [coords[j, g, 0], coords[j + 1, g, 0]],
-#                 [coords[j, g, 1], coords[j + 1, g, 1]],
-#                 color="k",
-#                 linestyle="--",
-#                 lw=0.5,
-#             )
-
-#     ax.set_xticks(list(states_data.keys()))
-#     ax.set_xticklabels(states)
-#     _style_scatter(ax)
-
-#     return ax
