@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from anndata import AnnData
 
-from scCCA.plots.utils import set_up_subplots
+from scCCA.plots.utils import set_up_plot, set_up_subplots
 
 
 def test_set_up_subplots_single_plot():

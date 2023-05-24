@@ -105,6 +105,59 @@ def set_up_plot(
     ax: Union[plt.Axes, None] = None,
     **kwargs
 ):
+    """
+    Set up the plot environment for visualizing multiple instances or factors.
+
+    Parameters
+    ----------
+    adata : AnnData
+        AnnData object containing the data and model information.
+    model_key : str
+        Key to access the model information in `adata.uns`.
+    instances : int, List[int], or None
+        Index or list of indices of instances or factors to visualize.
+        If None, the function determines the number of instances/factors automatically.
+    func : Callable
+        Plotting function to visualize each instance/factor.
+        It should accept the following parameters: `adata`, `model_key`, `instance`, and `ax`.
+    ncols : int, optional (default: 4)
+        Number of columns in the subplot grid.
+    width : int, optional (default: 4)
+        Width of each subplot in inches.
+    height : int, optional (default: 3)
+        Height of each subplot in inches.
+    ax : plt.Axes or None, optional (default: None)
+        Matplotlib axes to use for plotting. If None, new subplots will be created.
+    **kwargs
+        Additional keyword arguments to pass to the `func` plotting function.
+
+    Returns
+    -------
+    ax : plt.Axes
+        Matplotlib axes object containing the plotted instances or factors.
+
+    Notes
+    -----
+    - If `instances` is an integer, only a single instance will be plotted.
+    - If `instances` is a list of integers, each specified instance will be plotted in separate subplots.
+    - If `instances` is None, the function will determine the number of instances automatically based on the `model_key`.
+    - The `func` plotting function should accept the `adata`, `model_key`, `instance`, and `ax` parameters.
+      It is responsible for plotting the specific instance or factor.
+
+    Examples
+    --------
+    # Plot a single instance of a model using a custom plotting function
+    set_up_plot(adata, 'pca', 0, plot_function)
+
+    # Plot multiple instances of a model using a custom plotting function
+    set_up_plot(adata, 'umap', [0, 1, 2], plot_function)
+
+    # Automatically determine the number of instances and plot them using a custom plotting function
+    set_up_plot(adata, 'lda', None, plot_function)
+
+    # Specify the number of columns and size of subplots
+    set_up_plot(adata, 'nmf', [0, 1, 2, 3], plot_function, ncols=3, width=6, height=4)
+    """
     if isinstance(instances, list):
         num_plots = len(instances)
         fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height)
