@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
+from anndata import AnnData
 
 from scCCA.utils import get_diff_genes, get_ordered_genes, get_rna_counts
+from scCCA.utils.data import _get_model_design
 from scCCA.utils.design import _get_gene_idx
 
 
@@ -57,6 +59,42 @@ def test_get_gene_idx():
         ("m2", "Intercept", 0, 25, 25, "W_rna", 1.0, True),
         ("m2", "Intercept", 5, 25, 25, "W_rna", 1.0, True),
         ("m2", "label[T.stim]", 0, 25, 25, "W_rna", 1.0, True),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", -1.0, False),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", -1.0, False),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", -1.0, False),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", -1.0, True),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", -1.0, True),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", -1.0, True),
+        ("m2", "Intercept", 0, 50, 0, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 50, 0, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 50, 0, "W_rna", -1.0, True),
+        ("m2", "Intercept", 0, 0, 50, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 0, 50, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 0, 50, "W_rna", -1.0, True),
+        ("m2", "Intercept", 0, 25, 25, "W_rna", -1.0, True),
+        ("m2", "Intercept", 5, 25, 25, "W_rna", -1.0, True),
+        ("m2", "label[T.stim]", 0, 25, 25, "W_rna", -1.0, True),
     ],
 )
 def test_get_ordered_genes(model_key, state, factor, highest, lowest, vector, sign, ascending, test_anndata):
@@ -131,3 +169,31 @@ def test_get_diff_genes(model_key, state, factor, highest, lowest, vector, sign,
     else:
         assert np.all(df["gene"].to_numpy() == test_anndata.var_names[gene_idx][::-1].to_numpy())
         assert np.all(df["diff"].to_numpy() == diff[gene_idx][::-1])
+
+
+def test_get_model_design_existing_key():
+    adata = AnnData()
+    model_key = "my_model"
+    design_mapping = {"Intercept": 0, "stim": 1}
+    adata.uns[model_key] = {"design": design_mapping}
+
+    result = _get_model_design(adata, model_key)
+
+    assert result == design_mapping
+
+
+def test_get_model_design_missing_key():
+    adata = AnnData()
+    model_key = "my_model"
+
+    with pytest.raises(ValueError):
+        _get_model_design(adata, model_key)
+
+
+def test_get_model_design_missing_design_mapping():
+    adata = AnnData()
+    model_key = "my_model"
+    adata.uns[model_key] = {}
+
+    with pytest.raises(ValueError):
+        _get_model_design(adata, model_key)

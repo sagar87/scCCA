@@ -7,6 +7,8 @@ from anndata import AnnData
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
+from .data import _get_model_design
+
 StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states, sparse")
 
 
@@ -129,10 +131,44 @@ def get_ordered_genes(
     lowest: int = 0,
     ascending: bool = False,
 ):
-    model_dict = adata.uns[model_key]
-    model_design = model_dict["design"]
+    """
+    Retrieve the ordered genes based on differential factor values.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data object containing gene expression data.
+    model_key : str
+        Key to identify the specific model.
+    state : str
+        Name of the model state from which to extract genes.
+    factor : int
+        Factor index for which differential factor values are calculated.
+    sign : Union[int, float], optional
+        Sign multiplier for differential factor values. Default is 1.0.
+    vector : str, optional
+        Vector type from which to extract differential factor values. Default is "W_rna".
+    highest : int, optional
+        Number of genes with the highest differential factor values to retrieve. Default is 10.
+    lowest : int, optional
+        Number of genes with the lowest differential factor values to retrieve. Default is 0.
+    ascending : bool, optional
+        Flag indicating whether to sort genes in ascending order based on differential factor values. Default is False.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the ordered genes along with their magnitude, differential factor values,
+        type (lowest/highest), model state, factor index, and gene index.
+
+    Raises
+    ------
+    ValueError
+        If the specified model key or model state is not found in the provided AnnData object.
+    """
+    model_design = _get_model_design(adata, model_key)
     state = model_design[state]
-    diff_factor = adata.varm[f"{model_key}_{vector}"][..., factor, state]
+    diff_factor = sign * adata.varm[f"{model_key}_{vector}"][..., factor, state]
     gene_idx = _get_gene_idx(diff_factor, highest, lowest)
 
     magnitude = np.abs(diff_factor[gene_idx])
@@ -167,8 +203,7 @@ def get_diff_genes(
     lowest: int = 0,
     ascending: bool = False,
 ):
-    model_dict = adata.uns[model_key]
-    model_design = model_dict["design"]
+    model_design = model_design = _get_model_design(adata, model_key)
     state_a = model_design[state[0]]
     state_b = model_design[state[1]]
 
