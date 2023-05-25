@@ -8,7 +8,7 @@ from scipy.sparse import issparse
 DESIGN_KEY = "design"
 
 
-def _get_model_design(adata: AnnData, model_key: str):
+def _get_model_design(adata: AnnData, model_key: str, reverse: bool = False):
     """
     Extracts the design dictionary from an AnnData object.
 
@@ -21,6 +21,8 @@ def _get_model_design(adata: AnnData, model_key: str):
         The AnnData object containing the model annotations.
     model_key : str
         The key identifying the model in the `uns` attribute.
+    reverse : bool
+        Whether to reverse the key/items in the returned dict.
 
     Returns
     -------
@@ -53,7 +55,12 @@ def _get_model_design(adata: AnnData, model_key: str):
     if DESIGN_KEY not in model_dict:
         raise ValueError("No design mapping found in model annotations.")
 
-    return model_dict[DESIGN_KEY]
+    model_design = model_dict[DESIGN_KEY]
+
+    if reverse:
+        model_design = {v: k for k, v in model_design.items()}
+
+    return model_design
 
 
 def extract_counts(adata, layers_key, protein_obsm_key):
