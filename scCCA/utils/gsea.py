@@ -1,7 +1,6 @@
 from typing import List, Union
 
 import gseapy as gp
-import pandas as pd
 from anndata import AnnData
 
 from .design import get_diff_genes, get_ordered_genes
