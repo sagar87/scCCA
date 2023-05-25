@@ -6,7 +6,7 @@ from .design import (
     get_state_loadings,
     get_states,
 )
-from .gsea import get_factor_enrichment
+from .gsea import get_diff_enrichment, get_factor_enrichment
 from .scanpy import umap
 
 __all__ = [
@@ -19,5 +19,6 @@ __all__ = [
     "get_diff_genes",
     "get_formula",
     "get_factor_enrichment",
+    "get_diff_enrichment",
     "umap",
 ]
