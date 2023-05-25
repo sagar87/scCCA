@@ -195,7 +195,7 @@ def get_ordered_genes(
 def get_diff_genes(
     adata: AnnData,
     model_key: str,
-    state: List[str],
+    states: List[str],
     factor: int,
     sign: Union[int, float] = 1.0,
     vector: str = "W_rna",
@@ -204,8 +204,8 @@ def get_diff_genes(
     ascending: bool = False,
 ):
     model_design = model_design = _get_model_design(adata, model_key)
-    state_a = model_design[state[0]]
-    state_b = model_design[state[1]]
+    state_a = model_design[states[0]]
+    state_b = model_design[states[1]]
 
     # diff_factor = sign * (model_dict[vector][state_b][factor] - model_dict[vector][state_a][factor])
     diff_factor = sign * (
@@ -225,7 +225,7 @@ def get_diff_genes(
                 "magnitude": magnitude,
                 "diff": diff_factor[gene_idx],
                 "type": ["lowest"] * lowest + ["highest"] * highest,
-                "state": state[1] + "-" + state[0],
+                "state": states[1] + "-" + states[0],
                 "factor": factor,
                 "index": gene_idx,
             }
