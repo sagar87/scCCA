@@ -1,9 +1,13 @@
 from collections import OrderedDict, namedtuple
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
+from anndata import AnnData
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
+
+from .data import _get_model_design
 
 StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states, sparse")
 
@@ -52,7 +56,7 @@ def get_states(design: DesignMatrix) -> namedtuple:
     )
 
 
-def get_state_loadings(adata, model_key: str) -> dict:
+def get_state_loadings(adata: AnnData, model_key: str) -> dict:
     """
     Computes the loading matrix for each state defined in the
     design matrix of the model.
@@ -79,7 +83,7 @@ def get_state_loadings(adata, model_key: str) -> dict:
     return states
 
 
-def get_formula(adata, formula):
+def get_formula(adata: AnnData, formula: str):
     if formula is None:
         batch = dmatrix("1", adata.obs)
     else:
@@ -88,17 +92,84 @@ def get_formula(adata, formula):
     return batch
 
 
-def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
-    model_dict = adata.uns[model_key]
-    model_design = model_dict["design"]
-    state = model_design[state]
-    diff_factor = adata.varm[f"{model_key}_{vector}"][..., factor, state]
-    order = np.argsort(diff_factor)
+def _get_gene_idx(array: np.ndarray, highest: int, lowest: int):
+    """
+    Given an array of indices return the highest and/or lowest
+    indices.
+
+    Parameters
+    ----------
+    array: np.ndarray
+        array in which to extract the highest/lowest indices
+    highest: int
+        number of top indices to extract
+    lowest: int
+        number of lowest indices to extract
+
+    Returns
+    -------
+    np.ndarray
+    """
+    order = np.argsort(array)
 
     if highest == 0:
         gene_idx = order[:lowest]
     else:
         gene_idx = np.concatenate([order[:lowest], order[-highest:]])
+
+    return gene_idx
+
+
+def get_ordered_genes(
+    adata: AnnData,
+    model_key: str,
+    state: str,
+    factor: int,
+    sign: Union[int, float] = 1.0,
+    vector: str = "W_rna",
+    highest: int = 10,
+    lowest: int = 0,
+    ascending: bool = False,
+):
+    """
+    Retrieve the ordered genes based on differential factor values.
+
+    Parameters
+    ----------
+    adata : AnnData
+        Annotated data object containing gene expression data.
+    model_key : str
+        Key to identify the specific model.
+    state : str
+        Name of the model state from which to extract genes.
+    factor : int
+        Factor index for which differential factor values are calculated.
+    sign : Union[int, float], optional
+        Sign multiplier for differential factor values. Default is 1.0.
+    vector : str, optional
+        Vector type from which to extract differential factor values. Default is "W_rna".
+    highest : int, optional
+        Number of genes with the highest differential factor values to retrieve. Default is 10.
+    lowest : int, optional
+        Number of genes with the lowest differential factor values to retrieve. Default is 0.
+    ascending : bool, optional
+        Flag indicating whether to sort genes in ascending order based on differential factor values. Default is False.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the ordered genes along with their magnitude, differential factor values,
+        type (lowest/highest), model state, factor index, and gene index.
+
+    Raises
+    ------
+    ValueError
+        If the specified model key or model state is not found in the provided AnnData object.
+    """
+    model_design = _get_model_design(adata, model_key)
+    state = model_design[state]
+    diff_factor = sign * adata.varm[f"{model_key}_{vector}"][..., factor, state]
+    gene_idx = _get_gene_idx(diff_factor, highest, lowest)
 
     magnitude = np.abs(diff_factor[gene_idx])
     genes = adata.var_names.to_numpy()[gene_idx]
@@ -112,30 +183,36 @@ def get_ordered_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna",
                 "type": ["lowest"] * lowest + ["highest"] * highest,
                 "state": state,
                 "factor": factor,
+                "index": gene_idx,
             }
         )
         .sort_values(by="diff", ascending=ascending)
         .reset_index(drop=True)
+        .rename(columns={"diff": "value"})
     )
 
 
-def get_diff_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", highest=10, lowest=0, ascending=False):
-    model_dict = adata.uns[model_key]
-    model_design = model_dict["design"]
-    state_a = model_design[state[0]]
-    state_b = model_design[state[1]]
+def get_diff_genes(
+    adata: AnnData,
+    model_key: str,
+    states: List[str],
+    factor: int,
+    sign: Union[int, float] = 1.0,
+    vector: str = "W_rna",
+    highest: int = 10,
+    lowest: int = 0,
+    ascending: bool = False,
+):
+    model_design = _get_model_design(adata, model_key)
+    state_a = model_design[states[0]]
+    state_b = model_design[states[1]]
+    a = adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
+    b = adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
 
     # diff_factor = sign * (model_dict[vector][state_b][factor] - model_dict[vector][state_a][factor])
-    diff_factor = sign * (
-        adata.varm[f"{model_key}_{vector}"][..., factor, state_b]
-        - adata.varm[f"{model_key}_{vector}"][..., factor, state_a]
-    )
-    order = np.argsort(diff_factor)
+    diff_factor = sign * (b - a)
 
-    if highest == 0:
-        gene_idx = order[:lowest]
-    else:
-        gene_idx = np.concatenate([order[:lowest], order[-highest:]])
+    gene_idx = _get_gene_idx(diff_factor, highest, lowest)
 
     magnitude = np.abs(diff_factor[gene_idx])
     genes = adata.var_names.to_numpy()[gene_idx]
@@ -147,8 +224,11 @@ def get_diff_genes(adata, model_key, state, factor, sign=1.0, vector="W_rna", hi
                 "magnitude": magnitude,
                 "diff": diff_factor[gene_idx],
                 "type": ["lowest"] * lowest + ["highest"] * highest,
-                "state": state[1] + "-" + state[0],
+                "state": states[1] + "-" + states[0],
                 "factor": factor,
+                "index": gene_idx,
+                states[0]: a[gene_idx],
+                states[1]: b[gene_idx],
             }
         )
         .sort_values(by="diff", ascending=ascending)
