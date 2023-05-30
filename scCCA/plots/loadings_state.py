@@ -157,7 +157,7 @@ def _loadings_state(
             # print(genes)
             # print(adata.var_names.isin(genes))
             # import pdb; pdb.set_trace()
-            gene_rep = np.random.choice(adata.var_names[adata.var_names.str.upper().isin(genes)])
+            # gene_rep = np.random.choice(adata.var_names[adata.var_names.str.upper().isin(genes)])
             # import pdb;pdb.set_trace()
             # t = ax.text(x[adata.var_names == gene_rep].item(), y[adata.var_names == gene_rep].item(), s=text_func(label), fontsize=fontsize)
             t = ax.text(

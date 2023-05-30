@@ -37,6 +37,7 @@ def loadings_scatter(
     show_diff: bool = False,
     geneset_top_genes: int = 100,
     geneset_bottom_genes: int = 0,
+    organism="Human",
     cmap=cm.RdBu,
     format_func=lambda x: textwrap.fill(x.split(" (")[0], width=20),
     ncols: int = 4,
@@ -105,6 +106,7 @@ def loadings_scatter(
         format_func=format_func,
         geneset_top_genes=geneset_top_genes,
         geneset_bottom_genes=geneset_bottom_genes,
+        organism=organism,
         cmap=cmap,
         ncols=ncols,
         width=width,
@@ -132,6 +134,7 @@ def _loadings_scatter(
     fontsize: int = 10,
     geneset_top_genes: int = 100,
     geneset_bottom_genes: int = 0,
+    organism="Human",
     show_labels: int = 0,
     show_geneset: bool = False,
     show_diff: bool = False,
@@ -248,6 +251,7 @@ def _loadings_scatter(
             lowest=geneset_bottom_genes,
             sign=sign,
             geneset=geneset,
+            organism=organism,
         ).head(highest)
 
         terms = dict(
@@ -283,6 +287,7 @@ def _loadings_scatter(
                 lowest=geneset_bottom_genes,
                 sign=sign,
                 geneset=geneset,
+                organism=organism,
             ).head(highest)
             geneset_results[state] = dict(
                 zip(
