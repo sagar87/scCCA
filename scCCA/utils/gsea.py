@@ -27,6 +27,7 @@ def get_factor_enrichment(
         factor=factor,
         highest=highest,
         lowest=lowest,
+        sign=sign,
         ascending=True if lowest > 0 else False,
     )
     enr = gp.enrichr(gene_list=ordered_genes["gene"].tolist(), gene_sets=geneset, organism=organism, outdir=None)
