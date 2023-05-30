@@ -30,7 +30,7 @@ def rand_jitter(arr, stdev=1):
     return arr + np.random.randn(len(arr)) * stdev
 
 
-def set_up_subplots(num_plots, ncols=4, width=4, height=3):
+def set_up_subplots(num_plots, ncols=4, width=4, height=3, sharey=False, sharex=False):
     """
     Set up subplots for plotting multiple factors.
 
@@ -89,7 +89,7 @@ def set_up_subplots(num_plots, ncols=4, width=4, height=3):
         if reminder > 0:
             nrows += 1
 
-    fig, axes = plt.subplots(nrows, ncols, figsize=(width * ncols, height * nrows))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(width * ncols, height * nrows), sharey=sharey, sharex=sharex)
     _ = [ax.axis("off") for ax in axes.flatten()[num_plots:]]
     return fig, axes
 
@@ -102,6 +102,8 @@ def set_up_plot(
     ncols: int = 4,
     width: int = 4,
     height: int = 3,
+    sharey=False,
+    sharex=False,
     ax: Union[plt.Axes, None] = None,
     **kwargs
 ):
@@ -160,11 +162,11 @@ def set_up_plot(
     """
     if isinstance(instances, list):
         num_plots = len(instances)
-        fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height)
+        fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height, sharex=sharex, sharey=sharey)
     elif isinstance(instances, int):
         num_plots = 1
         if ax is None:
-            fig, ax = plt.subplots(1, 1)
+            fig, ax = plt.subplots(1, 1, figsize=(width, height))
     else:
         model_dict = adata.uns[model_key]
         if model_key == "pca":
@@ -173,7 +175,7 @@ def set_up_plot(
             num_plots = model_dict["model"]["num_factors"]
 
         instances = [i for i in range(num_plots)]
-        fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height)
+        fig, ax = set_up_subplots(num_plots, ncols=ncols, width=width, height=height, sharex=sharex, sharey=sharey)
 
     if num_plots == 1:
         if isinstance(instances, list):
