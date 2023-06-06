@@ -1,3 +1,5 @@
+from .design_matrix import design_matrix
+from .data_matrix import data_matrix
 from .factor_embedding import factor_embedding
 from .factor_enrichment import factor_enrichment
 from .loadings_bar import loading_bar
@@ -15,5 +17,7 @@ __all__ = [
     "loadings_scatter",
     "loadings_state",
     "loadings_heatmap",
+    "data_matrix",
+    "design_matrix",
     "mean_var",
 ]
