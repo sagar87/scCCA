@@ -3,7 +3,6 @@ import textwrap
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy.ma import masked_array
 from scipy.linalg import block_diag
 from scipy.spatial.distance import cdist
@@ -22,9 +21,9 @@ def loadings_heatmap(
     fmt="{x:.2f}",
     normalize=False,
     cmap="RdBu",
-    vmin=-.6,
-    vmax=.6,
-    cmap2='Greens',
+    vmin=-0.6,
+    vmax=0.6,
+    cmap2="Greens",
     vmin2=0,
     vmax2=1,
     ax=None,
@@ -74,7 +73,16 @@ def loadings_heatmap(
         dist_diag = masked_array(dist, mask)
         dist_off = masked_array(dist, ~mask)
         im_diag, cbar_diag = heatmap(
-            dist_diag, labels, labels, cmap=cmap, grid_linewidth=2, grid_step=num_states, colorbar_pos=[1.01, 0.05, 0.03, .4 ], vmin=vmin, vmax=vmax, ax=ax
+            dist_diag,
+            labels,
+            labels,
+            cmap=cmap,
+            grid_linewidth=2,
+            grid_step=num_states,
+            colorbar_pos=[1.01, 0.05, 0.03, 0.4],
+            vmin=vmin,
+            vmax=vmax,
+            ax=ax,
         )
         im_off, cbar_off = heatmap(
             dist_off,
@@ -84,7 +92,7 @@ def loadings_heatmap(
             vmin=vmin2,
             vmax=vmax2,
             grid_linewidth=2,
-            colorbar_pos=[1.01, 0.55, 0.03, .4 ],
+            colorbar_pos=[1.01, 0.55, 0.03, 0.4],
             grid_step=num_states,
             ax=ax,
         )
@@ -95,7 +103,16 @@ def loadings_heatmap(
                 _ = annotate_heatmap(im_off, valfmt=fmt)
 
     else:
-        im, cbar = heatmap(dist, labels, labels, cmap=cmap, grid_linewidth=2, grid_step=num_states, colorbar_pos=[1.04, 0.2, 0.01, .3 ], ax=ax)
+        im, cbar = heatmap(
+            dist,
+            labels,
+            labels,
+            cmap=cmap,
+            grid_linewidth=2,
+            grid_step=num_states,
+            colorbar_pos=[1.04, 0.2, 0.01, 0.3],
+            ax=ax,
+        )
         if annot:
             _ = annotate_heatmap(im, valfmt=fmt)
 
