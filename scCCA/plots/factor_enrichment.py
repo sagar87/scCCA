@@ -30,6 +30,9 @@ def factor_enrichment(
         sign=sign,
         kind=kind,
         sharex=True,
+        width=width,
+        height=height,
+        ncols=ncols,
         ax=ax,
         **kwargs,
     )
@@ -57,3 +60,5 @@ def _factor_enrichment(adata, model_key, factor, cluster_key, hue_key=None, sign
 
     g.axes.tick_params(axis="x", rotation=90)
     g.axes.axhline(0, color="k", linestyle="--", lw=0.5)
+
+    return df
