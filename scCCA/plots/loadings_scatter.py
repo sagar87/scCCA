@@ -232,7 +232,8 @@ def _loadings_scatter(
 
     if gene_flag and diff_flag and not enrichment_flag:
         # TODO: compute differece across selected genes
-        pass
+        genes_bool = adata.var_names.isin(genes)
+        coords = np.zeros((len(states), len(genes), 2))
 
     elif gene_flag and not diff_flag and not enrichment_flag:
         # just plot genes
@@ -304,7 +305,13 @@ def _loadings_scatter(
 
         if gene_flag and diff_flag and not enrichment_flag:
             # TODO: compute differece across selected genes
-            pass
+            coords[i, :, 0] = state.x[genes_bool]
+            coords[i, :, 1] = state.y[genes_bool]
+
+            if state_name in show_labels:
+                texts += _annotate_genes(
+                    ax, state.x[genes_bool], state.y[genes_bool], state.g[genes_bool], fontsize=fontsize
+                )
 
         elif gene_flag and not diff_flag and not enrichment_flag:
             # just plot genes
