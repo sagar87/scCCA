@@ -111,7 +111,7 @@ def _loadings_state(
     loadings = adata.varm[f"{model_key}_{variable}"]
     x, y = loadings[..., factor, state_a], loadings[..., factor, state_b]
     diff = sign * (y - x)
-    diag = np.linspace(np.quantile(x, 0.01), np.quantile(x, 0.99))
+    diag = np.linspace(np.quantile(sign * x, 0.01), np.quantile(sign * x, 0.99))
     cmap, norm = set_up_cmap(diff)
     s = size_func(diff)
 
