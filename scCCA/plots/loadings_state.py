@@ -127,8 +127,9 @@ def _loadings_state(
     if show_lines:
         ax.axvline(0, ls="--", color="k", lw=0.5)
         ax.axhline(0, ls="--", color="k", lw=0.5)
-    ax.set_xlabel(f"Factor {factor} ({states[0]})")
-    ax.set_ylabel(f"Factor {factor} ({states[1]})")
+    ax.set_xlabel(f"Loadings ({states[0]})")
+    ax.set_ylabel(f"Loadings ({states[1]})")
+    ax.set_title(f'Factor {factor}')
     # ax.spines["top"].set_visible(False)
     # ax.spines["right"].set_visible(False)
     ax.set_aspect("equal")
