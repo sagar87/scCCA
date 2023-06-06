@@ -47,18 +47,22 @@ def _factor_enrichment(adata, model_key, factor, cluster_key, hue_key=None, sign
 
     df = pd.DataFrame(sign * adata.obsm[f"X_{model_key}"]).assign(cluster=adata.obs[cluster_key].tolist())
 
-    hue = None
     groupby_vars = ["cluster"]
 
     if hue_key is not None:
-        df = df.assign(hue=adata.obs[hue_key].tolist())
-        groupby_vars.append("hue")
-        hue = "hue"
-    df = df.melt(groupby_vars, var_name="factor")
+        df[hue_key] = adata.obs[hue_key].tolist()
+        groupby_vars.append(hue_key)
 
-    g = plot_funcs[kind](x="cluster", y="value", hue=hue, data=df[df["factor"] == factor], ax=ax, **kwargs)
+    df = df.melt(groupby_vars, var_name="factor")
+    g = plot_funcs[kind](x="cluster", y="value", hue=hue_key, data=df[df["factor"] == factor], ax=ax, **kwargs)
 
     g.axes.tick_params(axis="x", rotation=90)
-    g.axes.axhline(0, color="k", linestyle="--", lw=0.5)
+    g.axes.axhline(0, color="k", linestyle="-", lw=0.5)
+    g.axes.yaxis.grid(True)
+    g.axes.spines['top'].set_visible(False)
+    g.axes.spines['bottom'].set_visible(False)
+    g.axes.spines['right'].set_visible(False)
+    g.axes.spines['left'].set_visible(False)
+    g.axes.set_ylabel('Factor weight')
 
     return df
