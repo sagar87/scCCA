@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
 
@@ -19,7 +20,8 @@ def get_design_matrix(dm, repeats=4, cat_repeats=None):
 
 
 def design_matrix(
-    design_matrix,
+    adata,
+    formula,
     repeats=4,
     cat_repeats=None,
     xticklabels=[],
@@ -28,6 +30,7 @@ def design_matrix(
     ylabel=None,
     ylabel_pos=None,
     xlabel_pos=None,
+    rotation=90,
     col=None,
     ax=None,
 ):
@@ -35,6 +38,7 @@ def design_matrix(
         plt.figure(figsize=(0.8, 3))
         ax = plt.gca()
 
+    design_matrix = dmatrix(formula, adata.obs)
     M = get_design_matrix(design_matrix, repeats=repeats, cat_repeats=cat_repeats)
     if col is None:
         g = ax.imshow(M, cmap="Greys", vmin=0, vmax=1)
@@ -60,7 +64,8 @@ def design_matrix(
     if len(xticklabels) == 0:
         _ = g.axes.set_xticks([])
     else:
-        _ = g.axes.set_xticklabels(xticklabels)
+        _ = g.axes.set_xticks([i for i in range(M.shape[1])])
+        _ = g.axes.set_xticklabels(xticklabels, rotation=rotation)
 
     if xlabel is not None:
         ax.set_xlabel("$%s$" % xlabel)

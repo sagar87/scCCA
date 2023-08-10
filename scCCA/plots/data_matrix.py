@@ -93,7 +93,10 @@ def data_matrix(
 
 
     """
-    ax = ax or plt.gca()
+    # ax = ax or plt.gca()
+    if ax is None:
+        plt.figure(figsize=(0.8, 3))
+        ax = plt.gca()
     rows = size[0]
     cols = size[1]
 
@@ -130,7 +133,15 @@ def data_matrix(
     if cmaps is None:
         cmap = [get_hsvcmap(i, int(np.max(premask)) + 1, rot=0.5) for i in range(int(np.max(premask) + 1))]
     else:
-        cmap = cmaps
+        cmap = []
+
+        for c in cmaps:
+            try:
+                cm = plt.get_cmap(c)
+            except ValueError:
+                cm = mcolors.LinearSegmentedColormap.from_list(f"{c}", colors=["w", c])
+
+            cmap.append(cm)
 
     for i in range(int(np.min(premask)), int(np.max(premask) + 1)):
         if i == -1:

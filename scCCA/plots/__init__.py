@@ -1,5 +1,5 @@
-from .design_matrix import design_matrix
 from .data_matrix import data_matrix
+from .design_matrix import design_matrix
 from .factor_embedding import factor_embedding
 from .factor_enrichment import factor_enrichment
 from .loadings_bar import loading_bar
