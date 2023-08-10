@@ -421,10 +421,10 @@ def _loadings_scatter(
     #             )
 
     ax.set_xticks([i for i in range(len(states))])
-    ax.set_title(f'Factor {factor}')
-    ax.set_ylabel('Loading weight')
-    ax.set_xlabel('State')
-    ax.set_xticklabels(states)
+    ax.set_title(f"Factor {factor}")
+    ax.set_ylabel("Loading weight")
+    ax.set_xlabel("State")
+    ax.set_xticklabels([format_func(s) for s in states])
     _style_scatter(ax)
 
     return ax
@@ -519,8 +519,7 @@ def _get_state_data(
             sz=np.abs(loadings) * size_scale,
             go=adata.var_names[order],
         )
-        
-    
+
     return states_data
 
 

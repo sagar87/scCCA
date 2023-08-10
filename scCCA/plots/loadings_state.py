@@ -129,7 +129,7 @@ def _loadings_state(
         ax.axhline(0, ls="--", color="k", lw=0.5)
     ax.set_xlabel(f"Loadings ({states[0]})")
     ax.set_ylabel(f"Loadings ({states[1]})")
-    ax.set_title(f'Factor {factor}')
+    ax.set_title(f"Factor {factor}")
     # ax.spines["top"].set_visible(False)
     # ax.spines["right"].set_visible(False)
     ax.set_aspect("equal")
@@ -158,12 +158,18 @@ def _loadings_state(
             # print(genes)
             # print(adata.var_names.isin(genes))
             # import pdb; pdb.set_trace()
+            is_upper = np.all([gene.isupper() for gene in genes])
+
+            var_names = adata.var_names
+            if is_upper:
+                var_names = var_names.str.upper()
+
             # gene_rep = np.random.choice(adata.var_names[adata.var_names.str.upper().isin(genes)])
             # import pdb;pdb.set_trace()
             # t = ax.text(x[adata.var_names == gene_rep].item(), y[adata.var_names == gene_rep].item(), s=text_func(label), fontsize=fontsize)
             t = ax.text(
-                sign * x[adata.var_names.str.upper().isin(genes)].mean(),
-                sign * y[adata.var_names.str.upper().isin(genes)].mean(),
+                sign * x[var_names.isin(genes)].mean(),
+                sign * y[var_names.isin(genes)].mean(),
                 s=text_func(label),
                 fontsize=fontsize,
             )
