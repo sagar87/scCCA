@@ -38,6 +38,7 @@ def model(
     z_sd=.1,
     horseshoe=False,
     batch_beta=False,
+    fixed_beta=False,
     intercept=True,
     constrain_alpha=False,
     fix_alpha_rna=None,
@@ -190,7 +191,15 @@ def model(
             with protein_plate:
                 α_prot_inv = sample("α_prot_inv", Exponential(β_prot).to_event(1))
                 α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
-
+    elif fixed_beta:
+        with gene_plate:
+            α_rna_inv = sample("α_rna_inv", Exponential(tensor(β_rna_mean, device=device)))
+            α_rna = deterministic("α_rna", (1 / α_rna_inv).T)
+        
+        if Y is not None:
+            with protein_plate:
+                α_prot_inv = sample("α_prot_inv", Exponential(β_prot))
+                α_prot = deterministic("α_prot", (1 / α_prot_inv).T)
     else:
         β_rna = sample(
             "β_rna",
@@ -360,6 +369,7 @@ def guide(
     z_sd=1.0,
     horseshoe=False,
     batch_beta=False,
+    fixed_beta=False,
     intercept=True,
     constrain_alpha=False,
     fix_alpha_rna=None,
@@ -554,6 +564,8 @@ def guide(
                         Normal(β_prot_loc, β_prot_scale), ExpTransform()
                     ),
                 )
+    elif fixed_beta:
+        pass
     else:
         β_rna_loc = param("β_rna_loc", zeros(1, device=device))
         β_rna_scale = param("β_rna_scale", ones(1, device=device), constraint=positive)
