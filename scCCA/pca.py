@@ -188,10 +188,7 @@ class scPCA(object):
         res = adata.uns[f"{model_key}"]
 
         res["design"] = self.design_states.sparse
-        res["intercept"] = {
-            **{str(k): v for k, v in self.batch_states.columns.items()},
-            **{str(k): v for k, v in self.batch_states.states.items()},
-        }
+        res["intercept"] = self.batch_states.sparse
 
         res["design_index"] = self.design_states.index
         res["intercept_index"] = self.batch_states.index
