@@ -16,8 +16,8 @@ from .utils import rand_jitter, set_up_cmap, set_up_plot
 def loadings_scatter(
     adata,
     model_key: str,
-    factor: Union[int, List[int], None] = None,
     states: List[str] = [],
+    factor: Union[int, List[int], None] = None,
     genes: List[str] = [],
     diff: List[str] = [],
     geneset=None,
