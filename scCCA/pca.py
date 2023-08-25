@@ -52,6 +52,7 @@ class scPCA(object):
         design_formula: Union[str, None] = None,
         subsampling: int = 4096,
         device: Device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+        seed: Union[int, None] = None,
         model_key: str = "scpca",
         model_kwargs: dict = {
             "β_rna_sd": 0.01,
@@ -62,6 +63,12 @@ class scPCA(object):
         },
         training_kwargs: dict = SUBSAMPLE,
     ):
+        if seed is not None:
+            torch.manual_seed(seed)
+            self.seed = seed
+        else:
+            self.seed = None
+
         self.adata = adata
         self.num_factors = num_factors
         self.layers_key = layers_key
@@ -194,7 +201,7 @@ class scPCA(object):
         res["intercept_index"] = self.batch_states.index
 
         res["loss"] = self.handler.loss
-        res["model"] = {"num_factors": self.num_factors, **self.model_kwargs}
+        res["model"] = {"num_factors": self.num_factors, "seed": self.seed, **self.model_kwargs}
 
         return res
 
