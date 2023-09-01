@@ -20,6 +20,7 @@ def loadings_state(
     variable: str = "W_rna",
     highest=10,
     lowest=10,
+    threshold=None,
     sign=1.0,
     geneset=None,
     geneset_top_genes: int = 100,
@@ -29,6 +30,7 @@ def loadings_state(
     colorbar_pos="right",
     colorbar_width="3%",
     orientation="vertical",
+    fontsize=10,
     pad=0.1,
     show_corr=False,
     show_rank=False,
@@ -41,6 +43,7 @@ def loadings_state(
     ncols: int = 4,
     width: int = 4,
     height: int = 3,
+    text_kwargs: dict = {},
     ax=None,
 ):
     ax = set_up_plot(
@@ -52,6 +55,7 @@ def loadings_state(
         variable=variable,
         highest=highest,
         lowest=lowest,
+        threshold=threshold,
         sign=sign,
         geneset=geneset,
         geneset_top_genes=geneset_top_genes,
@@ -62,6 +66,7 @@ def loadings_state(
         colorbar_pos=colorbar_pos,
         colorbar_width=colorbar_width,
         orientation=orientation,
+        fontsize=fontsize,
         pad=pad,
         cmap=cmap,
         show_corr=show_corr,
@@ -73,6 +78,7 @@ def loadings_state(
         ncols=ncols,
         width=width,
         height=height,
+        text_kwargs=text_kwargs,
         ax=ax,
     )
     return ax
@@ -86,6 +92,7 @@ def _loadings_state(
     variable="W_rna",
     highest=10,
     lowest=10,
+    threshold=None,
     geneset=None,
     sign=1.0,
     size_func=lambda x: 10,
@@ -103,6 +110,7 @@ def _loadings_state(
     show_lines=False,
     show_rank=False,
     show_diff=False,
+    text_kwargs={},
     ax=None,
 ):
 
@@ -176,9 +184,22 @@ def _loadings_state(
             texts.append(t)
 
     else:
-        diff_genes = get_diff_genes(
-            adata, model_key, states, factor, vector=variable, sign=sign, highest=highest, lowest=lowest
-        )
+        if threshold:
+            diff_genes = get_diff_genes(
+                adata,
+                model_key,
+                states,
+                factor,
+                vector=variable,
+                sign=sign,
+                highest=adata.shape[1],
+                threshold=threshold,
+            )
+            diff_genes = diff_genes[diff_genes.significant]
+        else:
+            diff_genes = get_diff_genes(
+                adata, model_key, states, factor, vector=variable, sign=sign, highest=highest, lowest=lowest
+            )
 
         for i, row in diff_genes.iterrows():
             label = str(row["gene"])
@@ -192,7 +213,7 @@ def _loadings_state(
             texts.append(t)
 
     if len(texts) > 0:
-        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=0.5), ax=ax)
+        adjust_text(texts, arrowprops=dict(arrowstyle="-", color="k", lw=0.5), ax=ax, **text_kwargs)
 
     if show_corr:
         correlation = np.corrcoef(x, y)[0, 1]
