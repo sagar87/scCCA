@@ -202,6 +202,7 @@ def get_diff_genes(
     highest: int = 10,
     lowest: int = 0,
     ascending: bool = False,
+    threshold=1.96,
 ):
     model_design = _get_model_design(adata, model_key)
     state_a = model_design[states[0]]
@@ -216,8 +217,8 @@ def get_diff_genes(
 
     magnitude = np.abs(diff_factor[gene_idx])
     genes = adata.var_names.to_numpy()[gene_idx]
-
-    return (
+    # is_significant = lambda x: x > norm().ppf(1 - significance_level) or x < norm().ppf(significance_level)
+    df = (
         pd.DataFrame(
             {
                 "gene": genes,
@@ -234,3 +235,17 @@ def get_diff_genes(
         .sort_values(by="diff", ascending=ascending)
         .reset_index(drop=True)
     )
+
+    df["significant"] = df["magnitude"] > threshold
+    return df
+
+
+def get_significant_genes(adata, model_key, states, filter_genes=True, threshold=1.96):
+    all_factors = []
+    for i in range(adata.uns[model_key]["model"]["num_factors"]):
+        df = get_diff_genes(adata, model_key, states, i, highest=adata.shape[1], threshold=threshold)
+        if filter_genes:
+            df = df[df.significant]
+        all_factors.append(df)
+
+    return pd.concat(all_factors).reset_index(drop=True)
