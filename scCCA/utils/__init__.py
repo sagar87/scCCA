@@ -3,6 +3,7 @@ from .design import (
     get_diff_genes,
     get_formula,
     get_ordered_genes,
+    get_significant_genes,
     get_state_loadings,
     get_states,
 )
@@ -20,5 +21,6 @@ __all__ = [
     "get_formula",
     "get_factor_enrichment",
     "get_diff_enrichment",
+    "get_significant_genes",
     "umap",
 ]
