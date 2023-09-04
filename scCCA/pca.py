@@ -56,7 +56,7 @@ class scPCA(object):
         model_key: str = "scpca",
         model_kwargs: dict = {
             "β_rna_sd": 0.01,
-            "β_rna_mean": 3.,
+            "β_rna_mean": 3.0,
             "fixed_beta": True,
             "intercept": True,
             "batch_beta": False,

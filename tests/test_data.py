@@ -11,7 +11,7 @@ from scCCA.utils.design import _get_gene_idx
 def test_get_rna_counts(test_sparse_anndata):
     X = get_rna_counts(test_sparse_anndata)
 
-    assert type(X) == np.ndarray
+    assert isinstance(X, np.ndarray)
     assert X.shape == (100, 2000)
 
 
