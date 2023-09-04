@@ -52,6 +52,27 @@
 <li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.qc.qc_hist"><code class="docutils literal notranslate"><span class="pre">qc_hist()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.plots.loadings_scatter">Plotting loadings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData"><code class="docutils literal notranslate"><span class="pre">StateData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.c"><code class="docutils literal notranslate"><span class="pre">StateData.c</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.g"><code class="docutils literal notranslate"><span class="pre">StateData.g</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.go"><code class="docutils literal notranslate"><span class="pre">StateData.go</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.o"><code class="docutils literal notranslate"><span class="pre">StateData.o</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.sz"><code class="docutils literal notranslate"><span class="pre">StateData.sz</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.x"><code class="docutils literal notranslate"><span class="pre">StateData.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.xo"><code class="docutils literal notranslate"><span class="pre">StateData.xo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.y"><code class="docutils literal notranslate"><span class="pre">StateData.y</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scCCA.plots.loadings_scatter.StateData.yo"><code class="docutils literal notranslate"><span class="pre">StateData.yo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.loadings_scatter.loadings_scatter"><code class="docutils literal notranslate"><span class="pre">loadings_scatter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.loadings_state.loadings_state"><code class="docutils literal notranslate"><span class="pre">loadings_state()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.plots.factor_embedding">Plotting factors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.factor_embedding.factor_embedding"><code class="docutils literal notranslate"><span class="pre">factor_embedding()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -167,6 +188,188 @@ overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
 </dd></dl>
 
 </section>
+<section id="module-scCCA.plots.loadings_scatter">
+<span id="plotting-loadings"></span><h2>Plotting loadings<a class="headerlink" href="#module-scCCA.plots.loadings_scatter" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scCCA.plots.loadings_scatter.</span></span><span class="sig-name descname"><span class="pre">StateData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">go</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData" title="Permalink to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.c">
+<span class="sig-name descname"><span class="pre">c</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.c" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.g">
+<span class="sig-name descname"><span class="pre">g</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.g" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.go">
+<span class="sig-name descname"><span class="pre">go</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.go" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 8</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.o">
+<span class="sig-name descname"><span class="pre">o</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.o" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.sz">
+<span class="sig-name descname"><span class="pre">sz</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.sz" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 7</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.x" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.xo">
+<span class="sig-name descname"><span class="pre">xo</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.xo" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.y" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.StateData.yo">
+<span class="sig-name descname"><span class="pre">yo</span></span><a class="headerlink" href="#scCCA.plots.loadings_scatter.StateData.yo" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_scatter.loadings_scatter">
+<span class="sig-prename descclassname"><span class="pre">scCCA.plots.loadings_scatter.</span></span><span class="sig-name descname"><span class="pre">loadings_scatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genes=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector='W_rna'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highest=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowest=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_scale=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter=0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_labels=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_diff=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_order=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotation_linewidth=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_geneset=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_diff=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset_top_genes=100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset_bottom_genes=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organism='Human'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_func=&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.loadings_scatter.loadings_scatter" title="Permalink to this definition"></a></dt>
+<dd><p>Plot factor on a given embedding.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;X_scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
+<li><p><strong>embedding</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;X_umap&quot;</em><em>)</em>) – Key for the embedding (e.g. UMAP, T-SNE).</p></li>
+<li><p><strong>factor</strong> (<em>int</em><em>, </em><em>list</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Factor(s) to plot. If None, then all factors are plotted.</p></li>
+<li><p><strong>sign</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default: 1.0</em><em>)</em>) – Sign of the factor. Should be either 1.0 or -1.0.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;PiYG&quot;</em><em>)</em>) – Colormap for the scatterplot.</p></li>
+<li><p><strong>colorbar_pos</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;right&quot;</em><em>)</em>) – Position of the colorbar.</p></li>
+<li><p><strong>colorbar_width</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;3%&quot;</em><em>)</em>) – Width of the colorbar.</p></li>
+<li><p><strong>orientation</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;vertical&quot;</em><em>)</em>) – Orientation of the colorbar. Should be either “vertical” or “horizontal”.</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default: 1</em><em>)</em>) – Marker/Dot size of the scatterplot.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 4</em><em>)</em>) – Number of columns for the subplots.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 4</em><em>)</em>) – Width of each subplot.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 3</em><em>)</em>) – Height of each subplot.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes object to plot on. If None, then a new figure is created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ax</strong> – Axes object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.axes.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-scCCA.plots.loadings_state"></span><dl class="py function">
+<dt class="sig sig-object py" id="scCCA.plots.loadings_state.loadings_state">
+<span class="sig-prename descclassname"><span class="pre">scCCA.plots.loadings_state.</span></span><span class="sig-name descname"><span class="pre">loadings_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable='W_rna'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">highest=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowest=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset_top_genes=100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geneset_bottom_genes=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">organism='Human'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_pos='right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_width='3%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation='vertical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize=10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad=0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_corr=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_rank=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_diff=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_lines=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_func=&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_func=&lt;function</span> <span class="pre">&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharey=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharex=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_kwargs={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.loadings_state.loadings_state" title="Permalink to this definition"></a></dt>
+<dd><p>Visualize the loading state of a given model on the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> – The annotated data matrix.</p></li>
+<li><p><strong>model_key</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Key to access the model from the data.</p></li>
+<li><p><strong>states</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – List of states to consider. Default is an empty list.</p></li>
+<li><p><strong>factor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Factor or factors to consider. Default is None.</p></li>
+<li><p><strong>variable</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Variable to consider. Default is “W_rna”.</p></li>
+<li><p><strong>highest</strong> – Number of highest values to consider. Default is 10.</p></li>
+<li><p><strong>lowest</strong> – Number of lowest values to consider. Default is 10.</p></li>
+<li><p><strong>threshold</strong> – Threshold value to consider. Default is None.</p></li>
+<li><p><strong>sign</strong> – Sign value. Default is 1.0.</p></li>
+<li><p><strong>geneset</strong> – Set of genes to consider. Default is None.</p></li>
+<li><p><strong>geneset_top_genes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of top genes in the gene set to consider. Default is 100.</p></li>
+<li><p><strong>geneset_bottom_genes</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of bottom genes in the gene set to consider. Default is 0.</p></li>
+<li><p><strong>organism</strong> – Organism to consider. Default is “Human”.</p></li>
+<li><p><strong>cmap</strong> – Colormap to use. Default is cm.RdBu.</p></li>
+<li><p><strong>colorbar_pos</strong> – Position of the colorbar. Default is “right”.</p></li>
+<li><p><strong>colorbar_width</strong> – Width of the colorbar. Default is “3%”.</p></li>
+<li><p><strong>orientation</strong> – Orientation of the plot. Default is “vertical”.</p></li>
+<li><p><strong>fontsize</strong> – Font size to use. Default is 10.</p></li>
+<li><p><strong>pad</strong> – Padding value. Default is 0.1.</p></li>
+<li><p><strong>show_corr</strong> – Whether to show correlation. Default is False.</p></li>
+<li><p><strong>show_rank</strong> – Whether to show rank. Default is False.</p></li>
+<li><p><strong>show_diff</strong> – Whether to show difference. Default is False.</p></li>
+<li><p><strong>show_lines</strong> – Whether to show lines. Default is False.</p></li>
+<li><p><strong>size_func</strong> – Function to determine size. Default is a function that returns 10.</p></li>
+<li><p><strong>text_func</strong> – Function to format text. Default is a function that wraps text.</p></li>
+<li><p><strong>sharey</strong> – Whether to share y-axis. Default is False.</p></li>
+<li><p><strong>sharex</strong> – Whether to share x-axis. Default is False.</p></li>
+<li><p><strong>ncols</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of columns. Default is 4.</p></li>
+<li><p><strong>width</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Width of the plot. Default is 4.</p></li>
+<li><p><strong>height</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Height of the plot. Default is 3.</p></li>
+<li><p><strong>text_kwargs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Keyword arguments for text formatting. Default is an empty dictionary.</p></li>
+<li><p><strong>ax</strong> – Axis object. Default is None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Configured axis object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ax</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function visualizes the loading state of a given model on the data.
+It provides various customization options for visualization.</p>
+</dd></dl>
+
+</section>
+<section id="module-scCCA.plots.factor_embedding">
+<span id="plotting-factors"></span><h2>Plotting factors<a class="headerlink" href="#module-scCCA.plots.factor_embedding" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="scCCA.plots.factor_embedding.factor_embedding">
+<span class="sig-prename descclassname"><span class="pre">scCCA.plots.factor_embedding.</span></span><span class="sig-name descname"><span class="pre">factor_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key='X_scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sign=1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap=&lt;matplotlib.colors.LinearSegmentedColormap</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_pos='right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_width='3%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation='vertical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad=0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncols=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax=None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.factor_embedding.factor_embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Plot factor on a given basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
+<li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;X_scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
+<li><p><strong>basis</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;X_umap&quot;</em><em>)</em>) – Key for the basis (e.g. UMAP, T-SNE).</p></li>
+<li><p><strong>factor</strong> (<em>int</em><em>, </em><em>list</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Factor(s) to plot. If None, then all factors are plotted.</p></li>
+<li><p><strong>sign</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default: 1.0</em><em>)</em>) – Sign of the factor. Should be either 1.0 or -1.0.</p></li>
+<li><p><strong>cmap</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;PiYG&quot;</em><em>)</em>) – Colormap for the scatterplot.</p></li>
+<li><p><strong>colorbar_pos</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;right&quot;</em><em>)</em>) – Position of the colorbar.</p></li>
+<li><p><strong>colorbar_width</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;3%&quot;</em><em>)</em>) – Width of the colorbar.</p></li>
+<li><p><strong>orientation</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;vertical&quot;</em><em>)</em>) – Orientation of the colorbar. Should be either “vertical” or “horizontal”.</p></li>
+<li><p><strong>size</strong> (<em>float</em><em>, </em><em>optional</em><em> (</em><em>default: 1</em><em>)</em>) – Marker/Dot size of the scatterplot.</p></li>
+<li><p><strong>ncols</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 4</em><em>)</em>) – Number of columns for the subplots.</p></li>
+<li><p><strong>width</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 4</em><em>)</em>) – Width of each subplot.</p></li>
+<li><p><strong>height</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default: 3</em><em>)</em>) – Height of each subplot.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes object to plot on. If None, then a new figure is created.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ax</strong> – Axes object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.axes.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-scCCA.plots.factor_enrichment"></span></section>
 </section>
 
 
