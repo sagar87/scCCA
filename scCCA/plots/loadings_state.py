@@ -1,10 +1,13 @@
 import textwrap
-from typing import List, Union
+from typing import Callable, List, Union
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from adjustText import adjust_text
+from anndata import AnnData
+from matplotlib.axes import Axes
+from matplotlib.colors import Colormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..utils import get_diff_enrichment, get_diff_genes
@@ -13,38 +16,38 @@ from .utils import set_up_cmap, set_up_plot
 
 
 def loadings_state(
-    adata,
+    adata: AnnData,
     model_key: str,
     states: List[str] = [],
     factor: Union[int, List[int], None] = None,
     variable: str = "W_rna",
-    highest=10,
-    lowest=10,
-    threshold=None,
-    sign=1.0,
-    geneset=None,
+    highest: int = 10,
+    lowest: int = 10,
+    threshold: float = None,
+    sign: int = 1.0,
+    geneset: str = None,
     geneset_top_genes: int = 100,
     geneset_bottom_genes: int = 0,
-    organism="Human",
-    cmap=cm.RdBu,
-    colorbar_pos="right",
-    colorbar_width="3%",
-    orientation="vertical",
-    fontsize=10,
-    pad=0.1,
-    show_corr=False,
-    show_rank=False,
-    show_diff=False,
-    show_lines=False,
-    size_func=lambda x: 10,
-    text_func=lambda x: textwrap.fill(x.split(" (")[0], width=20),
-    sharey=False,
-    sharex=False,
+    organism: str = "Human",
+    cmap: Colormap = cm.RdBu,
+    colorbar_pos: str = "right",
+    colorbar_width: str = "3%",
+    orientation: str = "vertical",
+    fontsize: int = 10,
+    pad: float = 0.1,
+    show_corr: bool = False,
+    show_rank: bool = False,
+    show_diff: bool = False,
+    show_lines: bool = False,
+    size_func: Callable = lambda x: 10,
+    text_func: Callable = lambda x: textwrap.fill(x.split(" (")[0], width=20),
+    sharey: bool = False,
+    sharex: bool = False,
     ncols: int = 4,
     width: int = 4,
     height: int = 3,
     text_kwargs: dict = {},
-    ax=None,
+    ax: Union[Axes, None] = None,
 ):
     """
     Visualize the loading state of a given model on the data.
