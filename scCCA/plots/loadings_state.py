@@ -51,11 +51,11 @@ def loadings_state(
 
     Parameters
     ----------
-    adata : 
+    adata :
         The annotated data matrix.
     model_key :
         Key to access the model from the data.
-    states : 
+    states :
         List of states to consider. Default is an empty list.
     factor :
         Factor or factors to consider. Default is None.
@@ -65,11 +65,11 @@ def loadings_state(
         Number of highest values to consider. Default is 10.
     lowest :
         Number of lowest values to consider. Default is 10.
-    threshold : 
+    threshold :
         Threshold value to consider. Default is None.
     sign :
         Sign value. Default is 1.0.
-    geneset : 
+    geneset :
         Set of genes to consider. Default is None.
     geneset_top_genes :
         Number of top genes in the gene set to consider. Default is 100.
@@ -77,7 +77,7 @@ def loadings_state(
         Number of bottom genes in the gene set to consider. Default is 0.
     organism :
         Organism to consider. Default is "Human".
-    cmap 
+    cmap
         Colormap to use. Default is cm.RdBu.
     colorbar_pos :
         Position of the colorbar. Default is "right".
@@ -113,17 +113,17 @@ def loadings_state(
         Height of the plot. Default is 3.
     text_kwargs :
         Keyword arguments for text formatting. Default is an empty dictionary.
-    ax : 
+    ax :
         Axis object. Default is None.
 
     Returns
     -------
-    ax : 
+    ax :
         Configured axis object.
 
     Notes
     -----
-    This function visualizes the loading state of a given model on the data. 
+    This function visualizes the loading state of a given model on the data.
     It provides various customization options for visualization.
     """
     ax = set_up_plot(
