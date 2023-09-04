@@ -25,7 +25,7 @@ def loadings_state(
     lowest: int = 10,
     threshold: float = None,
     sign: int = 1.0,
-    geneset: str = None,
+    geneset: Union[str, None] = None,
     geneset_top_genes: int = 100,
     geneset_bottom_genes: int = 0,
     organism: str = "Human",
