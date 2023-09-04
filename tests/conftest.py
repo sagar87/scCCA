@@ -29,8 +29,6 @@ def test_sparse_anndata():
 
 @pytest.fixture(scope="session", name="test_anndata")
 def test_anndata(data_dir):
-    files = os.listdir(data_dir)
-    print(files)
-    adata = sc.read_h5ad(os.path.join(str(data_dir), files[0]))
+    adata = sc.read_h5ad(os.path.join(str(data_dir), "test_object.h5ad"))
 
     return adata
