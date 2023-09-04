@@ -46,6 +46,86 @@ def loadings_state(
     text_kwargs: dict = {},
     ax=None,
 ):
+    """
+    Visualize the loading state of a given model on the data.
+
+    Parameters
+    ----------
+    adata : 
+        The annotated data matrix.
+    model_key :
+        Key to access the model from the data.
+    states : 
+        List of states to consider. Default is an empty list.
+    factor :
+        Factor or factors to consider. Default is None.
+    variable :
+        Variable to consider. Default is "W_rna".
+    highest :
+        Number of highest values to consider. Default is 10.
+    lowest :
+        Number of lowest values to consider. Default is 10.
+    threshold : 
+        Threshold value to consider. Default is None.
+    sign :
+        Sign value. Default is 1.0.
+    geneset : 
+        Set of genes to consider. Default is None.
+    geneset_top_genes :
+        Number of top genes in the gene set to consider. Default is 100.
+    geneset_bottom_genes :
+        Number of bottom genes in the gene set to consider. Default is 0.
+    organism :
+        Organism to consider. Default is "Human".
+    cmap 
+        Colormap to use. Default is cm.RdBu.
+    colorbar_pos :
+        Position of the colorbar. Default is "right".
+    colorbar_width :
+        Width of the colorbar. Default is "3%".
+    orientation :
+        Orientation of the plot. Default is "vertical".
+    fontsize :
+        Font size to use. Default is 10.
+    pad :
+        Padding value. Default is 0.1.
+    show_corr :
+        Whether to show correlation. Default is False.
+    show_rank :
+        Whether to show rank. Default is False.
+    show_diff :
+        Whether to show difference. Default is False.
+    show_lines :
+        Whether to show lines. Default is False.
+    size_func :
+        Function to determine size. Default is a function that returns 10.
+    text_func :
+        Function to format text. Default is a function that wraps text.
+    sharey :
+        Whether to share y-axis. Default is False.
+    sharex :
+        Whether to share x-axis. Default is False.
+    ncols :
+        Number of columns. Default is 4.
+    width :
+        Width of the plot. Default is 4.
+    height :
+        Height of the plot. Default is 3.
+    text_kwargs :
+        Keyword arguments for text formatting. Default is an empty dictionary.
+    ax : 
+        Axis object. Default is None.
+
+    Returns
+    -------
+    ax : 
+        Configured axis object.
+
+    Notes
+    -----
+    This function visualizes the loading state of a given model on the data. 
+    It provides various customization options for visualization.
+    """
     ax = set_up_plot(
         adata,
         model_key,
