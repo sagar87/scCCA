@@ -25,6 +25,7 @@ def loadings_scatter(
     alpha: float = 1.0,
     highest=3,
     lowest=3,
+    threshold: Union[float, None] = None,
     size_scale=1.0,
     sign=1.0,
     jitter=0.01,
@@ -97,6 +98,7 @@ def loadings_scatter(
         sign=sign,
         highest=highest,
         lowest=lowest,
+        threshold=threshold,
         alpha=alpha,
         jitter=jitter,
         fontsize=fontsize,
@@ -128,6 +130,7 @@ def _loadings_scatter(
     vector: str = "W_rna",
     highest: int = 10,
     lowest: int = 0,
+    threshold: Union[float, None] = None,
     alpha: float = 1.0,
     size_scale: float = 1.0,
     jitter: float = 0.01,
@@ -228,12 +231,10 @@ def _loadings_scatter(
     if isinstance(show_labels, list):
         show_labels = [model_design[label] if isinstance(label, int) else label for label in show_labels]
 
-    states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale, cmap)
-
     if gene_flag and diff_flag and not enrichment_flag:
         # TODO: compute differece across selected genes
         genes_bool = adata.var_names.isin(genes)
-        coords = np.zeros((len(states), len(genes), 2))
+        coords = np.zeros((len(states), genes_bool.sum(), 2))
 
     elif gene_flag and not diff_flag and not enrichment_flag:
         # just plot genes
@@ -264,9 +265,15 @@ def _loadings_scatter(
         coords = np.zeros((len(states), enrichment_results.shape[0], 2))
 
     elif not gene_flag and diff_flag and not enrichment_flag:
-        diff_genes = get_diff_genes(
-            adata, model_key, states, factor, highest=highest, lowest=lowest, sign=sign, vector=vector
-        )
+        if threshold is not None:
+            diff_genes = get_diff_genes(
+                adata, model_key, states, factor, highest=adata.shape[1], sign=sign, vector=vector, threshold=threshold
+            )
+            diff_genes = diff_genes[diff_genes.significant]
+        else:
+            diff_genes = get_diff_genes(
+                adata, model_key, states, factor, highest=highest, lowest=lowest, sign=sign, vector=vector
+            )
         genes = diff_genes["gene"].tolist()
         values = diff_genes["diff"].tolist()
         diff_values = dict(zip(genes, values))
@@ -299,9 +306,31 @@ def _loadings_scatter(
     else:
         pass
 
+    states_data = _get_state_data(adata, factor, model_key, states, vector, sign, jitter, size_scale, cmap)
+
     texts = []
     for i, (state_name, state) in enumerate(states_data.items()):
-        ax.scatter(state.x, state.y, s=state.sz, c=state.c, alpha=alpha, zorder=1)
+        highlight = True
+        if highlight:
+            ax.scatter(
+                state.x[~genes_bool],
+                state.y[~genes_bool],
+                s=state.sz[~genes_bool],
+                c="lightgrey",
+                alpha=alpha,
+                zorder=1,
+            )
+            # import pdb;pdb.set_trace()
+            ax.scatter(
+                state.x[genes_bool],
+                state.y[genes_bool],
+                s=state.sz[genes_bool],
+                c=np.asarray(state.c)[genes_bool],
+                alpha=1,
+                zorder=1,
+            )
+        else:
+            ax.scatter(state.x, state.y, s=state.sz, c=state.c, alpha=alpha, zorder=1)
 
         if gene_flag and diff_flag and not enrichment_flag:
             # TODO: compute differece across selected genes
