@@ -11,6 +11,7 @@ def factor_enrichment(
     model_key: str,
     factor: Union[int, List[int]],
     cluster_key: str,
+    highlight: Union[str, List[str]] = None,
     hue_key: Union[str, None] = None,
     swap_axes=False,
     sign=1.0,
@@ -27,6 +28,7 @@ def factor_enrichment(
         factor,
         _factor_enrichment,
         cluster_key=cluster_key,
+        highlight=highlight,
         hue_key=hue_key,
         sign=sign,
         kind=kind,
@@ -42,7 +44,17 @@ def factor_enrichment(
 
 
 def _factor_enrichment(
-    adata, model_key, factor, cluster_key, hue_key=None, sign=1.0, kind="strip", swap_axes=False, ax=None, **kwargs
+    adata,
+    model_key,
+    factor,
+    cluster_key,
+    hue_key=None,
+    highlight=None,
+    sign=1.0,
+    kind="strip",
+    swap_axes=False,
+    ax=None,
+    **kwargs,
 ):
     plot_funcs = {
         "strip": sns.stripplot,
@@ -51,13 +63,21 @@ def _factor_enrichment(
 
     df = pd.DataFrame(sign * adata.obsm[f"X_{model_key}"]).assign(cluster=adata.obs[cluster_key].tolist())
 
+    if highlight is not None:
+        df = df.assign(highlight=lambda df: df.cluster.apply(lambda x: x if x in highlight else "other"))
+
     groupby_vars = ["cluster"]
 
     if hue_key is not None:
         df[hue_key] = adata.obs[hue_key].tolist()
         groupby_vars.append(hue_key)
 
+    if hue_key is None and highlight is not None:
+        hue_key = "highlight"
+        groupby_vars.append(hue_key)
+
     df = df.melt(groupby_vars, var_name="factor")
+    # import pdb; pdb.set_trace()
     if swap_axes:
         g = plot_funcs[kind](y="cluster", x="value", hue=hue_key, data=df[df["factor"] == factor], ax=ax, **kwargs)
         # g.axes.tick_params(axis="x", rotation=90)
