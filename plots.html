@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Plotting &mdash; scCCA 0.1.0 documentation</title>
@@ -11,10 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> scCCA
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            scCCA
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -42,7 +47,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="models.html">Models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Plotting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.plots.qc">Quality control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.plots.qc">Quality control</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.qc.disp"><code class="docutils literal notranslate"><span class="pre">disp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.plots.qc.qc_hist"><code class="docutils literal notranslate"><span class="pre">qc_hist()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -65,8 +74,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Plotting</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Plotting</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/plots.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -101,16 +110,16 @@
 }
 </style>
 <section id="plotting">
-<h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline"></a></h1>
+<h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading"></a></h1>
 <section id="module-scCCA.plots.qc">
-<span id="quality-control"></span><h2>Quality control<a class="headerlink" href="#module-scCCA.plots.qc" title="Permalink to this headline"></a></h2>
+<span id="quality-control"></span><h2>Quality control<a class="headerlink" href="#module-scCCA.plots.qc" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="scCCA.plots.qc.disp">
-<span class="sig-prename descclassname"><span class="pre">scCCA.plots.qc.</span></span><span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">matplotlib.axes._axes.Axes</span></span></span><a class="headerlink" href="#scCCA.plots.qc.disp" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">scCCA.plots.qc.</span></span><span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.qc.disp" title="Permalink to this definition"></a></dt>
 <dd><p>Plot the fitted dispersion against the coefficient of variation RNA or
 protein counts.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
 <li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
@@ -122,10 +131,10 @@ overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes to plot on. If None, then a new figure is created.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ax</strong></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib.axes.Axes</p>
 </dd>
 </dl>
@@ -133,10 +142,10 @@ overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="scCCA.plots.qc.qc_hist">
-<span class="sig-prename descclassname"><span class="pre">scCCA.plots.qc.</span></span><span class="sig-name descname"><span class="pre">qc_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'3%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vertical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">matplotlib.axes._axes.Axes</span></span></span><a class="headerlink" href="#scCCA.plots.qc.qc_hist" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">scCCA.plots.qc.</span></span><span class="sig-name descname"><span class="pre">qc_hist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'3%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'vertical'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.plots.qc.qc_hist" title="Permalink to this definition"></a></dt>
 <dd><p>Plots a 2D histogram of the predicted counts against the true counts.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>AnnData</em>) – AnnData object.</p></li>
 <li><p><strong>model_key</strong> (<em>str</em><em>, </em><em>optional</em><em> (</em><em>default: &quot;scpca&quot;</em><em>)</em>) – Key for the fitted model.</p></li>
@@ -148,10 +157,10 @@ overrides <cite>layers_key</cite>, i.e. protein counts are plotted.</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em><em>, </em><em>optional</em><em> (</em><em>default: None</em><em>)</em>) – Axes to plot on. If None, then a new figure is created.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ax</strong></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>matplotlib.axes.Axes</p>
 </dd>
 </dl>

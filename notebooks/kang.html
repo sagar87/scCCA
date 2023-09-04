@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analysing interferon-\(\beta\) stimulated PBMCs using scPCA &mdash; scCCA 0.1.0 documentation</title>
@@ -11,13 +11,14 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -29,11 +30,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> scCCA
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            scCCA
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -68,8 +73,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Analysing interferon-<span class="math notranslate nohighlight">\(\beta\)</span> stimulated PBMCs using scPCA</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Analysing interferon-<span class="math notranslate nohighlight">\(\beta\)</span> stimulated PBMCs using scPCA</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/notebooks/kang.ipynb.txt" rel="nofollow"> View page source</a>
       </li>
@@ -378,7 +383,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Analysing-interferon-\beta-stimulated-PBMCs-using-scPCA">
-<h1>Analysing interferon-<span class="math notranslate nohighlight">\(\beta\)</span> stimulated PBMCs using scPCA<a class="headerlink" href="#Analysing-interferon-\beta-stimulated-PBMCs-using-scPCA" title="Permalink to this headline"></a></h1>
+<h1>Analysing interferon-<span class="math notranslate nohighlight">\(\beta\)</span> stimulated PBMCs using scPCA<a class="headerlink" href="#Analysing-interferon-\beta-stimulated-PBMCs-using-scPCA" title="Permalink to this heading"></a></h1>
 <p>In this notebook, we analyse the dataset from Kang et. al. in which the authors stimulated PBMCs with Interferon-<span class="math notranslate nohighlight">\(\beta\)</span>. We load the dataset using <code class="docutils literal notranslate"><span class="pre">scanpy</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -522,7 +527,7 @@ plt.tight_layout()
 <p>While the separation of cells across conditions is expected, it poses potential problems for further downstream analyses. Clustering by cell type, for example, is difficult due to the presence of <code class="docutils literal notranslate"><span class="pre">Factor</span> <span class="pre">1</span></code> which separates same cell types by condition. For this reason, it is desirebable to account for the experimental condition while performing the dimensionality reduction. In <code class="docutils literal notranslate"><span class="pre">scPCA</span></code>, we inform the model about the experimental condition of each cell by employing design matrices. To
 understand how, we consider in this tutorial the usage of different design matrices, and explore the consequences on the fitted latent representation.</p>
 <section id="Recovering-PCA,-i.e. providing-no-information-about-the-condition">
-<h2>Recovering PCA, i.e. providing no information about the condition<a class="headerlink" href="#Recovering-PCA,-i.e. providing-no-information-about-the-condition" title="Permalink to this headline"></a></h2>
+<h2>Recovering PCA, i.e. providing no information about the condition<a class="headerlink" href="#Recovering-PCA,-i.e. providing-no-information-about-the-condition" title="Permalink to this heading"></a></h2>
 <p>To recover results that are similar to the PCA baseline, we provide two non-informative rank one matrices <span class="math notranslate nohighlight">\(D_1, B_1\)</span> full of ones (depicted as black squares) as loading and intercept design matrix, respectively.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -695,7 +700,7 @@ plt.tight_layout()
 </div>
 </section>
 <section id="Accounting-for-mean-offsets-using-an-intercept-design-matrix">
-<h2>Accounting for mean offsets using an intercept design matrix<a class="headerlink" href="#Accounting-for-mean-offsets-using-an-intercept-design-matrix" title="Permalink to this headline"></a></h2>
+<h2>Accounting for mean offsets using an intercept design matrix<a class="headerlink" href="#Accounting-for-mean-offsets-using-an-intercept-design-matrix" title="Permalink to this heading"></a></h2>
 <p>As a first step we try to account for potential shifts in mean gene expression across conditions. Evidence for such shifts may be obtained by exploring how the number of total counts per cell differ between experimental condition.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
@@ -854,7 +859,7 @@ plt.tight_layout()
 </div>
 </section>
 <section id="Accounting-for-spectral-shifts-across-conditions-using-a-loading-design-matrix">
-<h2>Accounting for spectral shifts across conditions using a loading design matrix<a class="headerlink" href="#Accounting-for-spectral-shifts-across-conditions-using-a-loading-design-matrix" title="Permalink to this headline"></a></h2>
+<h2>Accounting for spectral shifts across conditions using a loading design matrix<a class="headerlink" href="#Accounting-for-spectral-shifts-across-conditions-using-a-loading-design-matrix" title="Permalink to this heading"></a></h2>
 <p>Note that mixing of cells across conditions worked for all cell types except CD14+ monocytes which still clearly separate by condition. We next consider a model that specifies the design matrices <span class="math notranslate nohighlight">\(D_2\)</span> and <span class="math notranslate nohighlight">\(B_2\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:

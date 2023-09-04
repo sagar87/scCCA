@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Models &mdash; scCCA 0.1.0 documentation</title>
@@ -11,10 +11,11 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -28,11 +29,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> scCCA
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            scCCA
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -41,8 +46,14 @@
               <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.pca">scPCA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.cca">scCCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.pca">scPCA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.pca.scPCA"><code class="docutils literal notranslate"><span class="pre">scPCA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-scCCA.cca">scCCA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scCCA.cca.scCCA"><code class="docutils literal notranslate"><span class="pre">scCCA</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="plots.html">Plotting</a></li>
@@ -66,8 +77,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Models</li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Models</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/models.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -102,15 +113,15 @@
 }
 </style>
 <section id="models">
-<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline"></a></h1>
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this heading"></a></h1>
 <section id="module-scCCA.pca">
-<span id="scpca"></span><h2>scPCA<a class="headerlink" href="#module-scCCA.pca" title="Permalink to this headline"></a></h2>
+<span id="scpca"></span><h2>scPCA<a class="headerlink" href="#module-scCCA.pca" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="scCCA.pca.scPCA">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.pca.</span></span><span class="sig-name descname"><span class="pre">scPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'scpca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.pca.scPCA" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scCCA.pca.</span></span><span class="sig-name descname"><span class="pre">scPCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_formula=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">design_formula=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsampling=4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device=device(type='cpu')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key='scpca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_kwargs={'batch_beta':</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'fixed_beta':</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'horseshoe':</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'intercept':</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'β_rna_mean':</span> <span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_kwargs={'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0.999)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'lr':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'scheduler':</span> <span class="pre">None}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.pca.scPCA" title="Permalink to this definition"></a></dt>
 <dd><p>scPCA model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
 <li><p><strong>num_factors</strong> (<em>int</em><em> (</em><em>default: 15</em><em>)</em>) – Number of factors to fit.</p></li>
@@ -133,13 +144,13 @@ computation of the gradients, but will also increase the training time and memor
 
 </section>
 <section id="module-scCCA.cca">
-<span id="sccca"></span><h2>scCCA<a class="headerlink" href="#module-scCCA.cca" title="Permalink to this headline"></a></h2>
+<span id="sccca"></span><h2>scCCA<a class="headerlink" href="#module-scCCA.cca" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="scCCA.cca.scCCA">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">scCCA.cca.</span></span><span class="sig-name descname"><span class="pre">scCCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">adata:</span> <span class="pre">anndata._core.anndata.AnnData</span></em>, <em class="sig-param"><span class="pre">num_factors:</span> <span class="pre">int</span></em>, <em class="sig-param"><span class="pre">protein_obsm_key:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">layers_key:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">batch_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">design_formula:</span> <span class="pre">Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">subsampling:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4096</span></em>, <em class="sig-param"><span class="pre">device:</span> <span class="pre">Optional[Union[torch.device</span></em>, <em class="sig-param"><span class="pre">str</span></em>, <em class="sig-param"><span class="pre">int]]</span> <span class="pre">=</span> <span class="pre">device(type='cpu')</span></em>, <em class="sig-param"><span class="pre">model_key:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'sccca'</span></em>, <em class="sig-param"><span class="pre">model_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'batch_beta':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'horseshoe':</span> <span class="pre">False</span></em>, <em class="sig-param"><span class="pre">'intercept':</span> <span class="pre">True</span></em>, <em class="sig-param"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></em>, <em class="sig-param"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">training_kwargs:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></em>, <em class="sig-param"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></em>, <em class="sig-param"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></em>, <em class="sig-param"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></em>, <em class="sig-param"><span class="pre">0.999)</span></em>, <em class="sig-param"><span class="pre">'lr':</span> <span class="pre">0.01}</span></em>, <em class="sig-param"><span class="pre">'scheduler':</span> <span class="pre">None}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.cca.scCCA" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scCCA.cca.</span></span><span class="sig-name descname"><span class="pre">scCCA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_obsm_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers_key=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_formula=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">design_formula=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsampling=4096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device=device(type='cpu')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_key='sccca'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_kwargs={'batch_beta':</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'horseshoe':</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'intercept':</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'β_rna_mean':</span> <span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'β_rna_sd':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_kwargs={'loss':</span> <span class="pre">&lt;class</span> <span class="pre">'pyro.infer.trace_mean_field_elbo.TraceMeanField_ELBO'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'loss_kwargs':</span> <span class="pre">{'num_particles':</span> <span class="pre">1}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'num_epochs':</span> <span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'optimizer':</span> <span class="pre">&lt;function</span> <span class="pre">ClippedAdam&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'optimizer_kwargs':</span> <span class="pre">{'betas':</span> <span class="pre">(0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">0.999)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'lr':</span> <span class="pre">0.01}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">'scheduler':</span> <span class="pre">None}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scCCA.cca.scCCA" title="Permalink to this definition"></a></dt>
 <dd><p>scCCA model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>anndata.AnnData</em>) – Anndata object with the single-cell data.</p></li>
 <li><p><strong>num_factors</strong> (<em>int</em>) – Number of factors to fit.</p></li>
