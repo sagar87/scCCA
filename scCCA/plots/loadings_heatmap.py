@@ -1,11 +1,14 @@
 import textwrap
 
 import matplotlib
+import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.ma import masked_array
 from scipy.linalg import block_diag
 from scipy.spatial.distance import cdist
+
+from ..utils import get_significant_genes
 
 
 def loadings_heatmap(
@@ -17,12 +20,15 @@ def loadings_heatmap(
     variable="W_rna",
     annot=False,
     annot_off_diag=False,
+    grid_linewidth=1,
     metric="corr",
     fmt="{x:.2f}",
     normalize=False,
     cmap="RdBu",
     vmin=-0.6,
     vmax=0.6,
+    colorbar_pos_up=[1.01, 0.05, 0.03, 0.4],
+    colorbar_pos_down=[1.01, 0.55, 0.03, 0.4],
     cmap2="Greens",
     vmin2=0,
     vmax2=1,
@@ -77,9 +83,9 @@ def loadings_heatmap(
             labels,
             labels,
             cmap=cmap,
-            grid_linewidth=2,
+            grid_linewidth=grid_linewidth,
             grid_step=num_states,
-            colorbar_pos=[1.01, 0.05, 0.03, 0.4],
+            colorbar_pos=colorbar_pos_up,  # [1.01, 0.05, 0.03, 0.4],
             vmin=vmin,
             vmax=vmax,
             ax=ax,
@@ -91,8 +97,8 @@ def loadings_heatmap(
             cmap=cmap2,
             vmin=vmin2,
             vmax=vmax2,
-            grid_linewidth=2,
-            colorbar_pos=[1.01, 0.55, 0.03, 0.4],
+            grid_linewidth=grid_linewidth,
+            colorbar_pos=colorbar_pos_down,
             grid_step=num_states,
             ax=ax,
         )
@@ -108,7 +114,7 @@ def loadings_heatmap(
             labels,
             labels,
             cmap=cmap,
-            grid_linewidth=2,
+            grid_linewidth=grid_linewidth,
             grid_step=num_states,
             colorbar_pos=[1.04, 0.2, 0.01, 0.3],
             ax=ax,
@@ -117,6 +123,37 @@ def loadings_heatmap(
             _ = annotate_heatmap(im, valfmt=fmt)
 
     return W
+
+
+def loadings_diff_heatmap(
+    adata,
+    model_key,
+    states,
+    swap_axes=False,
+    annot=True,
+    fmt="{x:.0f}",
+    threshold=1.96,
+    ax=None,
+    heatmap_kw={},
+    text_kw={},
+):
+    if ax is None:
+        ax = plt.gca()
+
+    data = get_significant_genes(adata, model_key, states, threshold=threshold)
+
+    pivot = data.pivot_table(index="gene", columns="factor", values="diff")
+    if swap_axes:
+        pivot = pivot.T
+    colMap = cm.RdBu
+    colMap.set_bad(color="lightgrey")
+    im, cbar = heatmap(
+        pivot.values, row_labels=pivot.index.tolist(), col_labels=pivot.columns.tolist(), cmap=colMap, *heatmap_kw
+    )
+
+    if annot:
+        annotate_heatmap(im, valfmt=fmt, *text_kw)
+    return im, cbar
 
 
 def block_diag_scipy(arr, num=3):
@@ -177,9 +214,11 @@ def heatmap(
     # Create colorbar
     # divider = make_axes_locatable(ax)
     # cax = divider.append_axes(colorbar_pos, size=colorbar_width, pad=pad)
-    cax = ax.inset_axes(colorbar_pos)
-
-    cbar = ax.figure.colorbar(im, cax=cax, orientation=orientation, **cbar_kw)
+    if colorbar_pos is not None:
+        cax = ax.inset_axes(colorbar_pos)
+        cbar = ax.figure.colorbar(im, cax=cax, orientation=orientation, **cbar_kw)
+    else:
+        cbar = None
     # cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
 
     # Show all ticks and label them with the respective list entries.
