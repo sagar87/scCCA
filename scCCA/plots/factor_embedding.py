@@ -2,22 +2,23 @@ from typing import List, Union
 
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+from anndata import AnnData
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from .utils import set_up_cmap, set_up_plot
 
 
 def factor_embedding(
-    adata,
-    model_key="X_scpca",
-    basis: str = "X_umap",
+    adata: AnnData,
+    model_key: str = "X_scpca",
     factor: Union[int, List[int], None] = None,
+    basis: Union[str, None] = None,
     sign: float = 1.0,
     cmap=cm.PiYG,
-    colorbar_pos="right",
-    colorbar_width="3%",
-    orientation="vertical",
-    pad=0.1,
+    colorbar_pos: str = "right",
+    colorbar_width: str = "3%",
+    orientation: str = "vertical",
+    pad: float = 0.1,
     size: float = 1,
     ncols: int = 4,
     width: int = 4,
@@ -88,7 +89,7 @@ def _factor_embedding(
     adata,
     model_key: str,
     factor: int,
-    basis: str = "X_umap",
+    basis: Union[str, None] = None,
     sign=1.0,
     cmap=cm.PiYG,
     colorbar_pos="right",
@@ -105,8 +106,10 @@ def _factor_embedding(
     else:
         fig = plt.gcf()
 
-    weights = sign * adata.obsm[f"X_{model_key}"][..., factor]
+    if basis is None:
+        basis = f"X_{model_key}_umap"
 
+    weights = sign * adata.obsm[f"X_{model_key}"][..., factor]
     cmap, norm = set_up_cmap(weights, cmap)
 
     im = ax.scatter(
