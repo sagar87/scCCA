@@ -274,8 +274,8 @@ def get_diff_genes(
                 "state": states[1] + "-" + states[0],
                 "factor": factor,
                 "index": gene_idx,
-                states[0]: sign * a[gene_idx],
-                states[1]: sign * b[gene_idx],
+                states[0]: a[gene_idx],
+                states[1]: b[gene_idx],
             }
         )
         .sort_values(by="diff", ascending=ascending)
