@@ -63,6 +63,37 @@ def _get_model_design(adata: AnnData, model_key: str, reverse: bool = False):
     return model_design
 
 
+def _validate_sign(sign: Union[float, int]) -> Union[float, int]:
+    """
+    Validates if the provided sign is either 1.0 or -1.0.
+
+    Parameters
+    ----------
+    sign :
+        The value to validate.
+
+    Returns
+    -------
+    Union[float, int]
+        The validated sign.
+
+    Raises
+    ------
+    TypeError
+        If the sign is not of type float or int.
+    ValueError
+        If the absolute value of the sign is not 1.0.
+    """
+    if not isinstance(sign, (float, int)):
+        raise TypeError("Sign must either be of float or integer type.")
+    
+    if np.abs(sign) != 1.0:
+        raise ValueError("Sign must be either 1 or -1.")
+    
+    return sign
+        
+    
+
 def extract_counts(adata, layers_key, protein_obsm_key):
     if protein_obsm_key is not None:
         counts = get_protein_counts(adata, protein_obsm_key)
