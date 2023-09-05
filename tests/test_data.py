@@ -4,7 +4,7 @@ from anndata import AnnData
 from scipy.sparse import csr_matrix
 
 from scCCA.utils import get_diff_genes, get_ordered_genes, get_rna_counts
-from scCCA.utils.data import _get_model_design, _validate_sign
+from scCCA.utils.data import _get_model_design, _get_state_indices, _validate_sign
 from scCCA.utils.design import _get_gene_idx
 
 
@@ -262,3 +262,29 @@ def test_invalid_types():
         _validate_sign([1])
     with pytest.raises(TypeError):
         _validate_sign((1,))
+
+
+def test_get_state_indices_with_list():
+    model_dict = {("state1", "state2"): ("index1", "index2")}
+    state_a, state_b = _get_state_indices(model_dict, ["state1", "state2"])
+    assert state_a == "index1"
+    assert state_b == "index2"
+
+
+def test_get_state_indices_with_single_state():
+    model_dict = {"state1": "index1"}
+    state_a, state_b = _get_state_indices(model_dict, "state1")
+    assert state_a == "Intercept"
+    assert state_b == "index1"
+
+
+def test_get_state_indices_with_invalid_list_length():
+    model_dict = {("state1", "state2"): ("index1", "index2")}
+    with pytest.raises(ValueError, match="The length of provided states must equal 2."):
+        _get_state_indices(model_dict, ["state1"])
+
+
+def test_get_state_indices_with_nonexistent_state():
+    model_dict = {("state1", "state2"): ("index1", "index2")}
+    with pytest.raises(KeyError):
+        _get_state_indices(model_dict, ["state3", "state4"])

@@ -5,6 +5,8 @@ import pandas as pd
 from anndata import AnnData
 from scipy.sparse import issparse
 
+from ..logger import logger
+
 DESIGN_KEY = "design"
 
 
@@ -91,6 +93,46 @@ def _validate_sign(sign: Union[float, int]) -> Union[float, int]:
         raise ValueError("Sign must be either 1 or -1.")
 
     return sign
+
+
+def _get_state_indices(model_dict: dict, states: Union[list, str]) -> tuple:
+    """
+    Retrieve state indices from the model dictionary based on the provided states.
+
+    Parameters
+    ----------
+    model_dict :
+        Dictionary containing state mappings.
+    states :
+        Either a single state as a string or a list containing two states.
+
+    Returns
+    -------
+    tuple
+        A tuple containing two state indices.
+
+    Raises
+    ------
+    ValueError
+        If the length of provided states in the list is not equal to 2.
+
+    Notes
+    -----
+    If a single state is provided as a string, the function uses 'Intercept' as the base state.
+    """
+    if isinstance(states, list):
+        if len(states) != 2:
+            raise ValueError("The length of provided states must equal 2.")
+
+        state_a, state_b = model_dict[states[0], states[1]]
+
+    if isinstance(states, str):
+        logger.info("Only one state was provided, using 'Intercept' as base state.")
+
+        state_a = "Intercept"
+        state_b = model_dict[states]
+
+    return state_a, state_b
 
 
 def extract_counts(adata, layers_key, protein_obsm_key):
