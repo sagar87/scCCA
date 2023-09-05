@@ -95,7 +95,7 @@ def _validate_sign(sign: Union[float, int]) -> Union[float, int]:
     return sign
 
 
-def _get_state_indices(model_dict: dict, states: Union[list, str]) -> tuple:
+def _validate_states(states: Union[list, tuple, str]) -> tuple:
     """
     Retrieve state indices from the model dictionary based on the provided states.
 
@@ -109,28 +109,26 @@ def _get_state_indices(model_dict: dict, states: Union[list, str]) -> tuple:
     Returns
     -------
     tuple
-        A tuple containing two state indices.
+        A tuple containing two state names and their corresponding indices.
 
     Raises
     ------
     ValueError
         If the length of provided states in the list is not equal to 2.
-
-    Notes
-    -----
-    If a single state is provided as a string, the function uses 'Intercept' as the base state.
+    TypeError
+        If the type of states is neither a list nor a string.
     """
-    if isinstance(states, list):
+
+    if isinstance(states, (list, tuple)):
         if len(states) != 2:
             raise ValueError("The length of provided states must equal 2.")
+        state_a, state_b = states
 
-        state_a, state_b = model_dict[states[0], states[1]]
-
-    if isinstance(states, str):
+    elif isinstance(states, str):
         logger.info("Only one state was provided, using 'Intercept' as base state.")
-
-        state_a = "Intercept"
-        state_b = model_dict[states]
+        state_a, state_b = "Intercept", states
+    else:
+        raise TypeError("The 'states' parameter must be either a list or a string.")
 
     return state_a, state_b
 

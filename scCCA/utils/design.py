@@ -7,7 +7,7 @@ from anndata import AnnData
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
-from .data import _get_model_design, _validate_sign
+from .data import _get_model_design, _validate_sign, _validate_states
 
 StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states, sparse")
 
@@ -197,7 +197,7 @@ def get_ordered_genes(
 def get_diff_genes(
     adata: AnnData,
     model_key: str,
-    states: List[str],
+    states: Union[str, List[str]],
     factor: int,
     sign: Union[int, float] = 1.0,
     vector: str = "W_rna",
@@ -216,7 +216,8 @@ def get_diff_genes(
     model_key :
         Key to access the model in the adata object.
     states :
-        List containing two states for comparison.
+        List containing two states for comparison. If a single str is provided
+        the base state is assumed to be 'Intercept'.
     factor :
         Factor index to consider for the differential calculation.
     sign :
@@ -246,7 +247,9 @@ def get_diff_genes(
     constructs a DataFrame with the results.
     """
 
-    _ = _validate_sign(sign)
+    sign = _validate_sign(sign)
+    states = _validate_states(states)
+
     model_design = _get_model_design(adata, model_key)
     state_a = model_design[states[0]]
     state_b = model_design[states[1]]

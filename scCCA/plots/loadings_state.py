@@ -11,14 +11,14 @@ from matplotlib.colors import Colormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..utils import get_diff_enrichment, get_diff_genes
-from ..utils.data import _get_model_design, _validate_sign
+from ..utils.data import _get_model_design, _validate_sign, _validate_states
 from .utils import set_up_cmap, set_up_plot
 
 
 def loadings_state(
     adata: AnnData,
     model_key: str,
-    states: List[str] = [],
+    states: Union[str, List[str]],
     factor: Union[int, List[int], None] = None,
     variable: str = "W_rna",
     highest: int = 10,
@@ -196,7 +196,9 @@ def _loadings_state(
     text_kwargs={},
     ax=None,
 ):
-    _ = _validate_sign(sign)
+    sign = _validate_sign(sign)
+    states = _validate_states(states)
+
     model_design = _get_model_design(adata, model_key)
     state_a, state_b = model_design[states[0]], model_design[states[1]]
     loadings = adata.varm[f"{model_key}_{variable}"]
