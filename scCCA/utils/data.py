@@ -86,13 +86,12 @@ def _validate_sign(sign: Union[float, int]) -> Union[float, int]:
     """
     if not isinstance(sign, (float, int)):
         raise TypeError("Sign must either be of float or integer type.")
-    
+
     if np.abs(sign) != 1.0:
         raise ValueError("Sign must be either 1 or -1.")
-    
+
     return sign
-        
-    
+
 
 def extract_counts(adata, layers_key, protein_obsm_key):
     if protein_obsm_key is not None:

@@ -4,7 +4,7 @@ from anndata import AnnData
 from scipy.sparse import csr_matrix
 
 from scCCA.utils import get_diff_genes, get_ordered_genes, get_rna_counts
-from scCCA.utils.data import _get_model_design
+from scCCA.utils.data import _get_model_design, _validate_sign
 from scCCA.utils.design import _get_gene_idx
 
 
@@ -237,3 +237,28 @@ def test_get_rna_counts_with_invalid_layers_key():
     adata = AnnData(X=np.array([[1, 2, 3], [4, 5, 6]]), layers={"counts": np.array([[7, 8, 9], [10, 11, 12]])})
     with pytest.raises(KeyError):
         get_rna_counts(adata, layers_key="invalid_key")
+
+
+def test_valid_signs():
+    assert _validate_sign(1) == 1
+    assert _validate_sign(-1) == -1
+    assert _validate_sign(1.0) == 1.0
+    assert _validate_sign(-1.0) == -1.0
+
+
+def test_invalid_signs():
+    with pytest.raises(ValueError):
+        _validate_sign(2)
+    with pytest.raises(ValueError):
+        _validate_sign(-2)
+    with pytest.raises(ValueError):
+        _validate_sign(0)
+
+
+def test_invalid_types():
+    with pytest.raises(TypeError):
+        _validate_sign("1")
+    with pytest.raises(TypeError):
+        _validate_sign([1])
+    with pytest.raises(TypeError):
+        _validate_sign((1,))
