@@ -25,6 +25,9 @@ Plotting loadings
 Plotting factors
 ----------------
 
+.. automodule:: scCCA.plots.cluster_enrichment
+   :members:
+
 .. automodule:: scCCA.plots.factor_embedding
    :members:
 

@@ -3,6 +3,8 @@ from typing import List, Union
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from anndata import AnnData
+from matplotlib.axes import Axes
+from matplotlib.colors import Colormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..utils.data import _validate_sign
@@ -11,11 +13,11 @@ from .utils import set_up_cmap, set_up_plot
 
 def factor_embedding(
     adata: AnnData,
-    model_key: str = "X_scpca",
+    model_key: str,
     factor: Union[int, List[int], None] = None,
     basis: Union[str, None] = None,
-    sign: float = 1.0,
-    cmap=cm.PiYG,
+    sign: Union[float, int] = 1.0,
+    cmap: Colormap = cm.PiYG,
     colorbar_pos: str = "right",
     colorbar_width: str = "3%",
     orientation: str = "vertical",
@@ -24,45 +26,47 @@ def factor_embedding(
     ncols: int = 4,
     width: int = 4,
     height: int = 3,
-    ax=None,
+    ax: Axes = None,
 ):
     """
     Plot factor on a given basis.
 
     Parameters
     ----------
-    adata: AnnData
+    adata :
         AnnData object.
-    model_key: str, optional (default: "X_scpca")
+    model_key :
         Key for the fitted model.
-    basis: str, optional (default: "X_umap")
-        Key for the basis (e.g. UMAP, T-SNE).
-    factor: int, list, optional (default: None)
+    basis :
+        Key for the basis (e.g. UMAP, T-SNE). If basis is None factor embedding
+        tries to retrieve "X_{model_key}_umap".
+    factor :
         Factor(s) to plot. If None, then all factors are plotted.
-    sign: float, optional (default: 1.0)
+    sign :
         Sign of the factor. Should be either 1.0 or -1.0.
-    cmap: str, optional (default: "PiYG")
+    cmap :
         Colormap for the scatterplot.
-    colorbar_pos: str, optional (default: "right")
+    colorbar_pos :
         Position of the colorbar.
-    colorbar_width: str, optional (default: "3%")
+    colorbar_width :
         Width of the colorbar.
-    orientation: str, optional (default: "vertical")
+    orientation :
         Orientation of the colorbar. Should be either "vertical" or "horizontal".
-    size: float, optional (default: 1)
+    size :
         Marker/Dot size of the scatterplot.
-    ncols: int, optional (default: 4)
+    ncols :
         Number of columns for the subplots.
-    width: int, optional (default: 4)
+    width :
         Width of each subplot.
-    height: int, optional (default: 3)
+    height :
         Height of each subplot.
-    ax: matplotlib.axes.Axes, optional (default: None)
-        Axes object to plot on. If None, then a new figure is created.
+    ax :
+        Axes object to plot on. If None, then a new figure is created. Works only
+        if one factor is plotted.
 
     Returns
     -------
-    ax: matplotlib.axes.Axes
+    ax :
         Axes object.
     """
     ax = set_up_plot(
@@ -87,20 +91,56 @@ def factor_embedding(
 
 
 def _factor_embedding(
-    adata,
+    adata: AnnData,
     model_key: str,
     factor: int,
     basis: Union[str, None] = None,
-    sign=1.0,
-    cmap=cm.PiYG,
-    colorbar_pos="right",
-    colorbar_width="3%",
-    orientation="vertical",
-    pad=0.1,
+    sign: Union[float, int] = 1.0,
+    cmap: Colormap = cm.PiYG,
+    colorbar_pos: str = "right",
+    colorbar_width: str = "3%",
+    orientation: str = "vertical",
+    pad: float = 0.1,
     size: float = 1,
-    ax=None,
+    ax: Axes = None,
 ):
-    _ = _validate_sign(sign)
+    """
+    Helper function to plot factor embeddings.
+
+    Parameters
+    ----------
+    adata :
+        AnnData object.
+    model_key :
+        Key for the fitted model.
+    factor :
+        Factor to plot.
+    basis :
+        Key for the basis (e.g. UMAP, T-SNE).
+    sign :
+        Sign of the factor. Should be either 1.0 or -1.0.
+    cmap :
+        Colormap for the scatterplot.
+    colorbar_pos :
+        Position of the colorbar.
+    colorbar_width :
+        Width of the colorbar.
+    orientation :
+        Orientation of the colorbar. Should be either "vertical" or "horizontal".
+    pad :
+        Padding for the colorbar.
+    size :
+        Marker/Dot size of the scatterplot.
+    ax :
+        Axes object to plot on. If None, then a new figure is created.
+
+    Returns
+    -------
+    ax :
+        Axes object.
+    """
+    sign = _validate_sign(sign)
+
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()
