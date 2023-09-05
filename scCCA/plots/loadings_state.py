@@ -11,7 +11,7 @@ from matplotlib.colors import Colormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..utils import get_diff_enrichment, get_diff_genes
-from ..utils.data import _get_model_design
+from ..utils.data import _get_model_design, _validate_sign
 from .utils import set_up_cmap, set_up_plot
 
 
@@ -196,7 +196,7 @@ def _loadings_state(
     text_kwargs={},
     ax=None,
 ):
-
+    _ = _validate_sign(sign)
     model_design = _get_model_design(adata, model_key)
     state_a, state_b = model_design[states[0]], model_design[states[1]]
     loadings = adata.varm[f"{model_key}_{variable}"]

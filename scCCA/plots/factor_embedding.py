@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from anndata import AnnData
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+from ..utils.data import _validate_sign
 from .utils import set_up_cmap, set_up_plot
 
 
@@ -99,7 +100,7 @@ def _factor_embedding(
     size: float = 1,
     ax=None,
 ):
-
+    _ = _validate_sign(sign)
     if ax is None:
         fig = plt.figure()
         ax = plt.gca()

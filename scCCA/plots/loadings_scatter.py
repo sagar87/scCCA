@@ -9,7 +9,7 @@ from adjustText import adjust_text
 from matplotlib.colors import Colormap
 
 from ..utils import get_diff_enrichment, get_diff_genes, get_factor_enrichment
-from ..utils.data import _get_model_design
+from ..utils.data import _get_model_design, _validate_sign
 from .utils import rand_jitter, set_up_cmap, set_up_plot
 
 
@@ -201,6 +201,8 @@ def _loadings_scatter(
     order: np.ndarray
         The order of genes plotted (only if `return_order` is True).
     """
+    _ = _validate_sign(sign)
+
     if ax is None:
         _ = plt.figure()
         ax = plt.gca()

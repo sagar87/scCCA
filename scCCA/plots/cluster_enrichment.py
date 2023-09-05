@@ -1,6 +1,7 @@
 import scanpy as sc
 
 from ..utils import get_diff_genes
+from ..utils.data import _validate_sign
 
 
 def cluster_enrichment(
@@ -19,6 +20,8 @@ def cluster_enrichment(
     return_var_names=False,
     **kwargs,
 ):
+    _ = _validate_sign(sign)
+
     if isinstance(cluster, str):
         cluster = [cluster]
     if isinstance(state_key, str):

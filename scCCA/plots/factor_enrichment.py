@@ -3,6 +3,7 @@ from typing import List, Union
 import pandas as pd
 import seaborn as sns
 
+from ..utils.data import _validate_sign
 from .utils import set_up_plot
 
 
@@ -56,6 +57,7 @@ def _factor_enrichment(
     ax=None,
     **kwargs,
 ):
+    _ = _validate_sign(sign)
     plot_funcs = {
         "strip": sns.stripplot,
         "box": sns.boxplot,

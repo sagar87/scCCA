@@ -5,6 +5,7 @@ import matplotlib.patheffects as PathEffects
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ..utils.data import _validate_sign
 from .utils import set_up_cmap, set_up_plot
 
 
@@ -105,6 +106,8 @@ def _loadings_bar(
     annot_bottom=False,
     ax=None,
 ):
+    _ = _validate_sign(sign)
+
     model_dict = adata.uns[model_key]
     if isinstance(state, str):
         idx = model_dict["design"][state]

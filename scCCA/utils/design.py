@@ -7,7 +7,7 @@ from anndata import AnnData
 from patsy import dmatrix
 from patsy.design_info import DesignMatrix
 
-from .data import _get_model_design
+from .data import _get_model_design, _validate_sign
 
 StateMapping = namedtuple("StateMapping", "mapping, reverse, encoding, index, columns, states, sparse")
 
@@ -136,24 +136,25 @@ def get_ordered_genes(
 
     Parameters
     ----------
-    adata : AnnData
+    adata :
         Annotated data object containing gene expression data.
-    model_key : str
+    model_key :
         Key to identify the specific model.
-    state : str
+    state :
         Name of the model state from which to extract genes.
-    factor : int
+    factor :
         Factor index for which differential factor values are calculated.
-    sign : Union[int, float], optional
+    sign :
         Sign multiplier for differential factor values. Default is 1.0.
-    vector : str, optional
+    vector :
         Vector type from which to extract differential factor values. Default is "W_rna".
-    highest : int, optional
+    highest :
         Number of genes with the highest differential factor values to retrieve. Default is 10.
-    lowest : int, optional
+    lowest :
         Number of genes with the lowest differential factor values to retrieve. Default is 0.
-    ascending : bool, optional
-        Flag indicating whether to sort genes in ascending order based on differential factor values. Default is False.
+    ascending :
+        Flag indicating whether to sort genes in ascending order based on differential factor values.
+        Default is False.
 
     Returns
     -------
@@ -166,6 +167,7 @@ def get_ordered_genes(
     ValueError
         If the specified model key or model state is not found in the provided AnnData object.
     """
+    _ = _validate_sign(sign)
     model_design = _get_model_design(adata, model_key)
     state = model_design[state]
     diff_factor = sign * adata.varm[f"{model_key}_{vector}"][..., factor, state]
@@ -204,6 +206,47 @@ def get_diff_genes(
     ascending: bool = False,
     threshold=1.96,
 ):
+    """
+    Compute the differential genes between two states based on a given model.
+
+    Parameters
+    ----------
+    adata :
+        Annotated data matrix.
+    model_key :
+        Key to access the model in the adata object.
+    states :
+        List containing two states for comparison.
+    factor :
+        Factor index to consider for the differential calculation.
+    sign :
+        Sign to adjust the difference, by default 1.0.
+    vector :
+        Vector key to access in the model, by default "W_rna".
+    highest :
+        Number of highest differential genes to retrieve, by default 10.
+    lowest :
+        Number of lowest differential genes to retrieve, by default 0.
+    ascending :
+        Whether to sort the results in ascending order, by default False.
+    threshold :
+        Threshold for significance, by default 1.96.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing differential genes, their magnitudes, differences, types, states, factors, indices, and significance.
+
+    Notes
+    -----
+    This function computes the differential genes between two states based on a given model.
+    It first validates the sign, retrieves the model design, and computes
+    the difference between the two states for a given factor. The function then
+    retrieves the gene indices based on the highest and lowest differences and
+    constructs a DataFrame with the results.
+    """
+
+    _ = _validate_sign(sign)
     model_design = _get_model_design(adata, model_key)
     state_a = model_design[states[0]]
     state_b = model_design[states[1]]
